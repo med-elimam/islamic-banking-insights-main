@@ -43,63 +43,68 @@ function AuthPage() {
   }
 
   return (
-    <div className="grid min-h-screen place-items-center bg-hero px-6">
-      <form
-        onSubmit={onSubmit}
-        className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-sm"
-      >
-        <div className="mb-6 flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground">
-            <Lock className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="font-display text-xl text-foreground">دخول الباحث</h1>
-            <p className="text-xs text-muted-foreground">منطقة محمية — للمدير فقط.</p>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="email">البريد الإلكتروني</Label>
-            <Input
-              id="email"
-              type="email"
-              dir="ltr"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-            />
-          </div>
-          <div>
-            <Label htmlFor="password">كلمة المرور</Label>
-            <Input
-              id="password"
-              type="password"
-              dir="ltr"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-            />
-          </div>
-        </div>
-
-        <Button
-          type="submit"
-          disabled={loading}
-          className="mt-6 w-full bg-primary text-primary-foreground"
+    <div className="flex min-h-screen flex-col bg-hero px-6">
+      <div className="flex-1 grid place-items-center w-full">
+        <form
+          onSubmit={onSubmit}
+          className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-sm"
         >
-          {loading ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
-          تسجيل الدخول
-        </Button>
+          <div className="mb-6 flex items-center gap-3">
+            <div className="grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground">
+              <Lock className="h-5 w-5" />
+            </div>
+            <div>
+              <h1 className="font-display text-xl text-foreground">دخول الباحث</h1>
+              <p className="text-xs text-muted-foreground">منطقة محمية — للمدير فقط.</p>
+            </div>
+          </div>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          <Link to="/" className="hover:text-primary">
-            العودة إلى الصفحة الرئيسية
-          </Link>
-        </p>
-      </form>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="email">البريد الإلكتروني</Label>
+              <Input
+                id="email"
+                type="email"
+                dir="ltr"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+              />
+            </div>
+            <div>
+              <Label htmlFor="password">كلمة المرور</Label>
+              <Input
+                id="password"
+                type="password"
+                dir="ltr"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+              />
+            </div>
+          </div>
+
+          <Button
+            type="submit"
+            disabled={loading}
+            className="mt-6 w-full bg-primary text-primary-foreground"
+          >
+            {loading ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
+            تسجيل الدخول
+          </Button>
+
+          <p className="mt-6 text-center text-xs text-muted-foreground">
+            <Link to="/" className="hover:text-primary">
+              العودة إلى الصفحة الرئيسية
+            </Link>
+          </p>
+        </form>
+      </div>
+      <footer className="py-6 text-center text-xs text-muted-foreground border-t border-border/10 font-mono opacity-80 mt-auto">
+        تطوير: محمد الإمام
+      </footer>
     </div>
   );
 }

@@ -53,7 +53,7 @@ export function AdminGuard({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen flex flex-col bg-background">
       <header className="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-3">
           <Link to="/" className="font-display text-base font-bold text-foreground">
@@ -84,7 +84,10 @@ export function AdminGuard({ children }: { children: ReactNode }) {
           </Button>
         </div>
       </header>
-      <main className="mx-auto max-w-7xl px-6 py-8">{children}</main>
+      <main className="mx-auto max-w-7xl px-6 py-8 flex-1 w-full">{children}</main>
+      <footer className="py-6 text-center text-xs text-muted-foreground border-t border-border/10 font-mono opacity-80 mt-auto">
+        تطوير: محمد الإمام
+      </footer>
     </div>
   );
 }

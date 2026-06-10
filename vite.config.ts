@@ -18,5 +18,17 @@ export default defineConfig({
   // process.env.PORT automatically — no extra config needed.
   nitro: {
     preset: "node-server",
+    routeRules: {
+      "/**": {
+        headers: {
+          "Content-Security-Policy":
+            "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none';",
+          "X-Frame-Options": "DENY",
+          "X-Content-Type-Options": "nosniff",
+          "Referrer-Policy": "strict-origin-when-cross-origin",
+          "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+        },
+      },
+    },
   },
 });

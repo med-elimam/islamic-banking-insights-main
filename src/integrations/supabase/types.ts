@@ -55,6 +55,7 @@ export type Database = {
           experience: string;
           gender: string;
           id: string;
+          language: string | null;
           open_answer: string | null;
           position: string;
         };
@@ -66,6 +67,7 @@ export type Database = {
           experience: string;
           gender: string;
           id?: string;
+          language?: string | null;
           open_answer?: string | null;
           position: string;
         };
@@ -77,6 +79,7 @@ export type Database = {
           experience?: string;
           gender?: string;
           id?: string;
+          language?: string | null;
           open_answer?: string | null;
           position?: string;
         };

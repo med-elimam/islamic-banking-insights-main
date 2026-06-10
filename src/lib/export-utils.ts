@@ -32,6 +32,13 @@ function styleSheet(rows: Record<string, unknown>[]) {
   return ws;
 }
 
+function escapeFormula(val: unknown): unknown {
+  if (typeof val === "string" && /^[=+\-@]/.test(val)) {
+    return `'${val}`;
+  }
+  return val;
+}
+
 export function exportResponsesToExcel(
   responses: ResponseRow[],
   answersByResponse: Map<string, { question_number: number; answer_value: number }[]>,
@@ -63,13 +70,13 @@ export function exportResponsesToExcel(
     const base: Record<string, unknown> = {
       "رقم الاستجابة": r.id,
       التاريخ: new Date(r.created_at).toLocaleString("ar"),
-      الجنس: r.gender,
-      العمر: r.age,
-      المؤهل: r.education,
-      البنك: r.bank,
-      الوظيفة: r.position,
-      الخبرة: r.experience,
-      "الإجابة المفتوحة": r.open_answer ?? "",
+      الجنس: escapeFormula(r.gender),
+      العمر: escapeFormula(r.age),
+      المؤهل: escapeFormula(r.education),
+      البنك: escapeFormula(r.bank),
+      الوظيفة: escapeFormula(r.position),
+      الخبرة: escapeFormula(r.experience),
+      "الإجابة المفتوحة": escapeFormula(r.open_answer ?? ""),
     };
     for (const n of qNumbers) base[`س${n}`] = map.get(n) ?? "";
     return base;
@@ -111,9 +118,9 @@ export function exportResponsesToExcel(
     .filter((r) => r.open_answer && r.open_answer.trim())
     .map((r) => ({
       التاريخ: new Date(r.created_at).toLocaleString("ar"),
-      البنك: r.bank,
-      الوظيفة: r.position,
-      "الإجابة المفتوحة": r.open_answer,
+      البنك: escapeFormula(r.bank),
+      الوظيفة: escapeFormula(r.position),
+      "الإجابة المفتوحة": escapeFormula(r.open_answer),
     }));
   if (openRows.length) {
     XLSX.utils.book_append_sheet(wb, styleSheet(openRows), "إجابات مفتوحة");
