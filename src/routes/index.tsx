@@ -65,7 +65,7 @@ function Index() {
       <main className="mx-auto max-w-6xl px-6 pb-20 pt-10">
         <section className="mx-auto max-w-3xl text-center">
           <p className="mb-4 inline-block rounded-full border border-gold/40 bg-gold/10 px-4 py-1 text-xs font-semibold text-gold-foreground">
-            بحث علمي محكّم — السرية مكفولة
+            بحث علمي محكّم — السرية مضمونة
           </p>
           <h1 className="font-display text-3xl leading-tight text-foreground sm:text-5xl">
             تحوُّل البنوك التقليدية إلى <span className="text-gradient-gold">بنوك إسلامية</span>
@@ -74,7 +74,7 @@ function Index() {
           </h1>
           <p className="mt-6 text-base leading-loose text-muted-foreground sm:text-lg">
             يهدف هذا الاستبيان إلى استطلاع آراء موظفي وإطارات البنوك التقليدية في موريتانيا حول واقع
-            واقع التحول نحو الصيرفة الإسلامية وأهم التحديات التي تواجه هذا التحول، وذلك في إطار بحث
+         التحول نحو الصيرفة الإسلامية وأهم التحديات التي تواجه هذا التحول، وذلك في إطار بحث
             أكاديمي.
           </p>
 
