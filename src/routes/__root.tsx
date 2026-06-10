@@ -82,9 +82,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "استبيان أكاديمي لأطروحة دكتوراه حول واقع وتحديات تحول البنوك التقليدية في موريتانيا إلى الصيرفة الإسلامية.",
+          "استبيان أكاديمي حول واقع وتحديات تحول البنوك التقليدية في موريتانيا إلى الصيرفة الإسلامية.",
       },
-      { name: "author", content: "أطروحة دكتوراه" },
+      { name: "author", content: "بحث أكاديمي" },
       { property: "og:title", content: "تحول البنوك التقليدية إلى بنوك إسلامية" },
       {
         property: "og:description",

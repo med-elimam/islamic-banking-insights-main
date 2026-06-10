@@ -190,7 +190,7 @@ function SurveyPage() {
     <div className="min-h-screen bg-hero pb-16">
       <header className="mx-auto flex max-w-4xl items-center justify-between px-6 py-5">
         <Link to="/" className="font-display text-lg font-bold text-foreground">
-          أطروحة دكتوراه
+          استبيان أكاديمي
         </Link>
         <span className="text-sm text-muted-foreground">
           الخطوة {step + 1} من {totalSteps}

@@ -10,7 +10,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "استبيان دكتوراه حول واقع وتحديات تحول البنوك التقليدية الموريتانية إلى الصيرفة الإسلامية.",
+          "استبيان أكاديمي حول واقع وتحديات تحول البنوك التقليدية الموريتانية إلى الصيرفة الإسلامية.",
       },
       { property: "og:title", content: "تحول البنوك التقليدية إلى بنوك إسلامية" },
       {
@@ -30,7 +30,7 @@ function Index() {
           <div className="grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground">
             <GraduationCap className="h-5 w-5" />
           </div>
-          <span className="font-display text-lg font-bold text-foreground">أطروحة دكتوراه</span>
+          <span className="font-display text-lg font-bold text-foreground"> استبيان أكاديمي</span>
         </div>
         <Link to="/auth" className="text-sm text-muted-foreground hover:text-primary">
           دخول الباحث
@@ -49,8 +49,8 @@ function Index() {
           </h1>
           <p className="mt-6 text-base leading-loose text-muted-foreground sm:text-lg">
             يهدف هذا الاستبيان إلى استطلاع آراء موظفي وإطارات البنوك التقليدية في موريتانيا حول واقع
-            التحول نحو الصيرفة الإسلامية وأهم التحديات التي تواجه هذا التحول، وذلك في إطار إعداد
-            أطروحة دكتوراه.
+            واقع التحول نحو الصيرفة الإسلامية وأهم التحديات التي تواجه هذا التحول، وذلك في إطار بحث
+            أكاديمي.
           </p>
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -97,7 +97,7 @@ function Index() {
           <p>
             <strong className="text-foreground">السادة موظفي البنوك المحترمين،</strong>
             <br />
-            في إطار إعداد أطروحة دكتوراه بعنوان «تحول البنوك التقليدية إلى بنوك إسلامية: الواقع
+            في إطار إعداد بحث أكاديمي بعنوان «تحول البنوك التقليدية إلى بنوك إسلامية: الواقع
             والتحديات»، نرجو منكم التكرم بالإجابة عن أسئلة هذا الاستبيان. تهدف الدراسة إلى معرفة
             واقع تحول البنوك التقليدية في موريتانيا نحو الصيرفة الإسلامية، وتحديد أهم التحديات التي
             تواجه هذا التحول. جميع البيانات ستُستخدم لأغراض البحث العلمي فقط، مع ضمان السرية التامة
@@ -107,7 +107,7 @@ function Index() {
       </main>
 
       <footer className="border-t border-border/60 bg-card/40 py-6 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} — أطروحة دكتوراه. جميع الحقوق محفوظة لأغراض البحث العلمي.
+        © {new Date().getFullYear()} — استبيان أكاديمي. جميع الحقوق محفوظة لأغراض البحث العلمي.
       </footer>
     </div>
   );
