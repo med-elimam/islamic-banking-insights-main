@@ -43,15 +43,21 @@ function Index() {
   };
 
   return (
-    <div className="bg-hero min-h-screen flex flex-col">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <div className="flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground">
-            <GraduationCap className="h-5 w-5" />
-          </div>
-          <span className="font-display text-lg font-bold text-foreground"> استبيان أكاديمي</span>
+    <div className="bg-hero min-h-screen flex flex-col" dir="rtl">
+      <header
+        className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6 w-full flex-row"
+        dir="rtl"
+      >
+        <div className="flex items-center gap-2 sm:gap-3">
+          <img src="/logo.svg" alt="MD Logo" className="h-8 w-8 sm:h-10 sm:w-10 object-contain" />
+          <span className="font-display text-base sm:text-lg font-bold text-foreground">
+            استبيان أكاديمي
+          </span>
         </div>
-        <Link to="/auth" className="text-sm text-muted-foreground hover:text-primary">
+        <Link
+          to="/auth"
+          className="text-xs sm:text-sm text-muted-foreground hover:text-primary border border-border/80 rounded-full px-3 py-1 bg-background/50 transition"
+        >
           دخول الباحث
         </Link>
       </header>
@@ -140,11 +146,11 @@ function Index() {
             <p>
               <strong className="text-foreground">السادة موظفي البنوك المحترمين،</strong>
               <br />
-              في إطار إعداد أطروحة دكتوراه حول تحول البنوك التقليدية إلى بنوك إسلامية في موريتانيا،
-              تتقدم الطالبة الباحثة مريم الإمام بهذا الاستبيان الأكاديمي بهدف جمع آرائكم وخبراتكم
-              حول واقع هذا التحول وتحدياته وآفاقه المستقبلية.
+              في إطار إعداد أطروحة دكتوراه حول موضوع تحول البنوك التقليدية إلى بنوك إسلامية في
+              موريتانيا، تضع الطالبة الباحثة مريم الإمام بين أيديكم هذا الاستبيان الأكاديمي بهدف جمع
+              آرائكم وخبراتكم المهنية حول واقع هذا التحول، والتحديات التي تواجهه، وآفاقه المستقبلية.
               <br />
-              نؤكد لكم أن جميع الإجابات ستُستخدم لأغراض علمية وبحثية فقط، وستُعامل بسرية تامة.
+              نؤكد لكم أن جميع الإجابات ستُستخدم حصراً لأغراض البحث العلمي، وستُعامل بسرية تامة.
               <br />
               نشكركم على وقتكم وتعاونكم القيّم.
             </p>
@@ -157,12 +163,12 @@ function Index() {
               <br />
               Dans le cadre de la préparation d’une thèse de doctorat portant sur la transformation
               des banques conventionnelles en banques islamiques en Mauritanie, la doctorante Mariam
-              El Imam propose ce questionnaire académique afin de recueillir vos avis et vos
-              expériences concernant la réalité de cette transformation, ses défis et ses
-              perspectives.
+              El Imam met à votre disposition ce questionnaire académique afin de recueillir vos
+              avis et vos expériences professionnelles sur la réalité de cette transformation, les
+              défis qu’elle rencontre et ses perspectives d’évolution.
               <br />
-              Nous vous assurons que toutes les réponses seront utilisées uniquement à des fins
-              scientifiques et de recherche, et seront traitées avec une stricte confidentialité.
+              Nous vous assurons que l’ensemble des réponses sera utilisé exclusivement à des fins
+              de recherche scientifique et sera traité dans la plus stricte confidentialité.
               <br />
               Nous vous remercions pour votre temps et votre précieuse collaboration.
             </p>
@@ -174,11 +180,11 @@ function Index() {
               As part of the preparation of a doctoral thesis on the transformation of conventional
               banks into Islamic banks in Mauritania, the doctoral researcher Mariam El Imam is
               conducting this academic survey to collect your views and professional experience
-              regarding the current reality, challenges, and future prospects of this
-              transformation.
+              regarding the current state of this transformation, the challenges it faces, and its
+              future prospects.
               <br />
-              All responses will be used strictly for academic and research purposes and will be
-              treated with full confidentiality.
+              All responses will be used exclusively for scientific research purposes and will be
+              treated with strict confidentiality.
               <br />
               Thank you for your time and valuable cooperation.
             </p>
@@ -186,15 +192,18 @@ function Index() {
         </section>
       </main>
 
-      <footer className="border-t border-border/60 bg-card/40 py-6 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-1.5 mt-auto">
-        <div>
+      <footer
+        className="border-t border-border/60 bg-card/40 py-6 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-1.5 mt-auto px-4 w-full"
+        dir={lang === "ar" ? "rtl" : "ltr"}
+      >
+        <div className="leading-relaxed max-w-full text-center">
           {lang === "ar"
-            ? `© ${new Date().getFullYear()} — استبيان أكاديمي. جميع الحقوق محفوظة لأغراض البحث العلمي.`
+            ? "© 2026 — استبيان أكاديمي. جميع الحقوق محفوظة لأغراض البحث العلمي."
             : lang === "fr"
-              ? `© ${new Date().getFullYear()} — Sondage Académique. Tous droits réservés à des fins de recherche scientifique.`
-              : `© ${new Date().getFullYear()} — Academic Survey. All rights reserved for scientific research purposes.`}
+              ? "© 2026 — Questionnaire académique. Tous droits réservés à des fins de recherche scientifique."
+              : "© 2026 — Academic Survey. All rights reserved for scientific research purposes."}
         </div>
-        <div className="text-[10px] opacity-75 font-mono">
+        <div className="text-[10px] opacity-75 font-mono text-center">
           {lang === "ar"
             ? "تطوير: محمد الإمام"
             : lang === "fr"

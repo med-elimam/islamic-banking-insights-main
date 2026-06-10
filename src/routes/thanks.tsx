@@ -60,12 +60,24 @@ function ThanksPage() {
           </Button>
         </div>
       </div>
-      <footer className="py-6 text-center text-xs text-muted-foreground border-t border-border/10 font-mono opacity-80 mt-auto">
-        {lang === "ar"
-          ? "تطوير: محمد الإمام"
-          : lang === "fr"
-            ? "Développé par Mohamed el imam"
-            : "Developed by Mohamed el imam"}
+      <footer
+        className="border-t border-border/10 bg-card/40 py-6 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-1.5 mt-auto px-4 w-full"
+        dir={lang === "ar" ? "rtl" : "ltr"}
+      >
+        <div className="leading-relaxed max-w-full text-center">
+          {lang === "ar"
+            ? "© 2026 — استبيان أكاديمي. جميع الحقوق محفوظة لأغراض البحث العلمي."
+            : lang === "fr"
+              ? "© 2026 — Questionnaire académique. Tous droits réservés à des fins de recherche scientifique."
+              : "© 2026 — Academic Survey. All rights reserved for scientific research purposes."}
+        </div>
+        <div className="text-[10px] opacity-75 font-mono text-center">
+          {lang === "ar"
+            ? "تطوير: محمد الإمام"
+            : lang === "fr"
+              ? "Développé par Mohamed el imam"
+              : "Developed by Mohamed el imam"}
+        </div>
       </footer>
     </div>
   );

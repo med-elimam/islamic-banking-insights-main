@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <rect x="16" y="16" width="480" height="480" rx="90" fill="#2f6a4d" stroke="#c79a3a" stroke-width="16" />
+  
+  <!-- Letter M -->
+  <rect x="125" y="175" width="25" height="162" rx="4" fill="#f5f2eb" />
+  <rect x="215" y="175" width="25" height="162" rx="4" fill="#f5f2eb" />
+  <polygon points="150,175 158,175 188,275 178,275" fill="#f5f2eb" />
+  <polygon points="178,275 188,275 215,175 207,175" fill="#f5f2eb" />
+  
+  <!-- Letter D -->
+  <rect x="272" y="175" width="25" height="162" rx="4" fill="#f5f2eb" />
+  <path d="M 297 175 L 332 175 A 81 81 0 0 1 332 337 L 297 337 L 297 312 L 332 312 A 56 56 0 0 0 332 200 L 297 200 Z" fill="#f5f2eb" />
+</svg>

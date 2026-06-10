@@ -290,17 +290,41 @@ function SurveyPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-hero pb-16" dir={lang === "ar" ? "rtl" : "ltr"}>
-      <header className="mx-auto flex max-w-4xl items-center justify-between px-6 py-5">
-        <Link to="/" className="font-display text-lg font-bold text-foreground">
-          {lang === "ar"
-            ? "استبيان أكاديمي"
-            : lang === "fr"
-              ? "Sondage Académique"
-              : "Academic Survey"}
+      <header className="mx-auto flex max-w-4xl items-center justify-between px-6 py-5 w-full flex-wrap gap-3">
+        <Link
+          to="/"
+          className="flex items-center gap-2 font-display text-lg font-bold text-foreground"
+        >
+          <img src="/logo.svg" alt="MD Logo" className="h-8 w-8 object-contain" />
+          <span>
+            {lang === "ar"
+              ? "استبيان أكاديمي"
+              : lang === "fr"
+                ? "Sondage Académique"
+                : "Academic Survey"}
+          </span>
         </Link>
-        <span className="text-sm text-muted-foreground">
-          {UI_TRANSLATIONS[lang].stepOf(step + 1, totalSteps)}
-        </span>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1 text-[11px] sm:text-xs text-muted-foreground hover:text-primary transition border border-border/80 rounded-full px-2.5 py-1 bg-background/50 shrink-0"
+          >
+            {lang === "ar" ? (
+              <>
+                <ArrowRight className="h-3 w-3 ml-0.5" />
+                العودة للرئيسية
+              </>
+            ) : (
+              <>
+                <ArrowLeft className="h-3 w-3 mr-0.5" />
+                {lang === "fr" ? "Retour à l’accueil" : "Back to Home"}
+              </>
+            )}
+          </Link>
+          <span className="text-sm text-muted-foreground font-medium shrink-0">
+            {UI_TRANSLATIONS[lang].stepOf(step + 1, totalSteps)}
+          </span>
+        </div>
       </header>
 
       <div className="mx-auto max-w-4xl px-6">
@@ -379,12 +403,24 @@ function SurveyPage() {
           </div>
         </div>
       </main>
-      <footer className="mt-auto py-6 text-center text-xs text-muted-foreground border-t border-border/40 w-full max-w-4xl mx-auto px-6 font-mono opacity-80">
-        {lang === "ar"
-          ? "تطوير: محمد الإمام"
-          : lang === "fr"
-            ? "Développé par Mohamed el imam"
-            : "Developed by Mohamed el imam"}
+      <footer
+        className="border-t border-border/40 bg-card/40 py-6 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-1.5 mt-auto px-4 w-full"
+        dir={lang === "ar" ? "rtl" : "ltr"}
+      >
+        <div className="leading-relaxed max-w-full text-center">
+          {lang === "ar"
+            ? "© 2026 — استبيان أكاديمي. جميع الحقوق محفوظة لأغراض البحث العلمي."
+            : lang === "fr"
+              ? "© 2026 — Questionnaire académique. Tous droits réservés à des fins de recherche scientifique."
+              : "© 2026 — Academic Survey. All rights reserved for scientific research purposes."}
+        </div>
+        <div className="text-[10px] opacity-75 font-mono text-center">
+          {lang === "ar"
+            ? "تطوير: محمد الإمام"
+            : lang === "fr"
+              ? "Développé par Mohamed el imam"
+              : "Developed by Mohamed el imam"}
+        </div>
       </footer>
     </div>
   );

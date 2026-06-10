@@ -105,21 +105,23 @@ function AnalysisPage() {
           <CardHeader>
             <CardTitle>متوسطات المحاور</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={320}>
-              <BarChart
-                data={axisStats.map((a) => ({
-                  name: a.id.toUpperCase(),
-                  mean: +a.mean.toFixed(2),
-                }))}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis domain={[0, 5]} />
-                <Tooltip />
-                <Bar dataKey="mean" fill="#2f6a4d" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+          <CardContent className="w-full overflow-hidden">
+            <div className="w-full overflow-hidden">
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart
+                  data={axisStats.map((a) => ({
+                    name: a.id.toUpperCase(),
+                    mean: +a.mean.toFixed(2),
+                  }))}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                  <YAxis domain={[0, 5]} tick={{ fontSize: 10 }} />
+                  <Tooltip />
+                  <Bar dataKey="mean" fill="#2f6a4d" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
 
@@ -127,15 +129,17 @@ function AnalysisPage() {
           <CardHeader>
             <CardTitle>الرادار — المحاور</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={320}>
-              <RadarChart data={radarData}>
-                <PolarGrid />
-                <PolarAngleAxis dataKey="axis" />
-                <PolarRadiusAxis domain={[0, 5]} />
-                <Radar dataKey="mean" stroke="#c79a3a" fill="#c79a3a" fillOpacity={0.5} />
-              </RadarChart>
-            </ResponsiveContainer>
+          <CardContent className="w-full overflow-hidden">
+            <div className="w-full overflow-hidden">
+              <ResponsiveContainer width="100%" height={320}>
+                <RadarChart data={radarData}>
+                  <PolarGrid />
+                  <PolarAngleAxis dataKey="axis" tick={{ fontSize: 10 }} />
+                  <PolarRadiusAxis domain={[0, 5]} tick={{ fontSize: 10 }} />
+                  <Radar dataKey="mean" stroke="#c79a3a" fill="#c79a3a" fillOpacity={0.5} />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
 
@@ -143,18 +147,26 @@ function AnalysisPage() {
           <CardHeader>
             <CardTitle>التوزيع الإجمالي لإجابات ليكرت</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={320}>
-              <PieChart>
-                <Pie data={likertPieFromAll} dataKey="value" nameKey="name" outerRadius={110} label>
-                  {likertPieFromAll.map((_, i) => (
-                    <Cell key={i} fill={LIKERT_COLORS[i]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
+          <CardContent className="w-full overflow-hidden">
+            <div className="w-full overflow-hidden">
+              <ResponsiveContainer width="100%" height={320}>
+                <PieChart>
+                  <Pie
+                    data={likertPieFromAll}
+                    dataKey="value"
+                    nameKey="name"
+                    outerRadius={90}
+                    label={{ fontSize: 10 }}
+                  >
+                    {likertPieFromAll.map((_, i) => (
+                      <Cell key={i} fill={LIKERT_COLORS[i]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend wrapperStyle={{ fontSize: 10 }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
       </div>

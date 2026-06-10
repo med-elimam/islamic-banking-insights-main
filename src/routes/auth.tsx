@@ -102,8 +102,14 @@ function AuthPage() {
           </p>
         </form>
       </div>
-      <footer className="py-6 text-center text-xs text-muted-foreground border-t border-border/10 font-mono opacity-80 mt-auto">
-        تطوير: محمد الإمام
+      <footer
+        className="border-t border-border/10 bg-card/40 py-6 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-1.5 mt-auto px-4 w-full"
+        dir="rtl"
+      >
+        <div className="leading-relaxed max-w-full text-center">
+          © 2026 — استبيان أكاديمي. جميع الحقوق محفوظة لأغراض البحث العلمي.
+        </div>
+        <div className="text-[10px] opacity-75 font-mono text-center">تطوير: محمد الإمام</div>
       </footer>
     </div>
   );
