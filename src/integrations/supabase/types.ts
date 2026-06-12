@@ -48,36 +48,30 @@ export type Database = {
       };
       responses: {
         Row: {
-          age: string;
           bank: string;
           created_at: string;
           education: string;
           experience: string;
-          gender: string;
           id: string;
           language: string | null;
           open_answer: string | null;
           position: string;
         };
         Insert: {
-          age: string;
           bank: string;
           created_at?: string;
           education: string;
           experience: string;
-          gender: string;
           id?: string;
           language?: string | null;
           open_answer?: string | null;
           position: string;
         };
         Update: {
-          age?: string;
           bank?: string;
           created_at?: string;
           education?: string;
           experience?: string;
-          gender?: string;
           id?: string;
           language?: string | null;
           open_answer?: string | null;

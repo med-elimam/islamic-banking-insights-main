@@ -5,8 +5,6 @@ import type { AxisStat, QuestionStat } from "./statistics";
 
 export type ResponseRow = {
   id: string;
-  gender: string;
-  age: string;
   education: string;
   bank: string;
   position: string;
@@ -70,8 +68,6 @@ export function exportResponsesToExcel(
     const base: Record<string, unknown> = {
       "رقم الاستجابة": r.id,
       التاريخ: new Date(r.created_at).toLocaleString("ar"),
-      الجنس: escapeFormula(r.gender),
-      العمر: escapeFormula(r.age),
       المؤهل: escapeFormula(r.education),
       البنك: escapeFormula(r.bank),
       الوظيفة: escapeFormula(r.position),

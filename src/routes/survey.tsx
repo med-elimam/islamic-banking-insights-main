@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { AGES, BANKS, EDUCATION, EXPERIENCE, GENDERS, LIKERT, POSITIONS } from "@/lib/survey-data";
+import { BANKS, EDUCATION, EXPERIENCE, LIKERT, POSITIONS } from "@/lib/survey-data";
 import { useQuestions, type DynamicAxis } from "@/lib/use-questions";
 import { toast } from "sonner";
 import { ArrowRight, ArrowLeft, Send, Loader2 } from "lucide-react";
@@ -32,8 +32,6 @@ export const Route = createFileRoute("/survey")({
 });
 
 type Demo = {
-  gender: string;
-  age: string;
   education: string;
   bank: string;
   position: string;
@@ -47,8 +45,6 @@ function SurveyPage() {
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [demo, setDemo] = useState<Demo>({
-    gender: "",
-    age: "",
     education: "",
     bank: "",
     position: "",
@@ -168,12 +164,6 @@ function SurveyPage() {
     }
 
     // Map demographics back to Arabic to comply with database constraints and keep analysis consistent
-    const cleanGender = (
-      OPTION_MAPS.gender.db[demo.gender as keyof typeof OPTION_MAPS.gender.db] || demo.gender
-    ).trim();
-    const cleanAge = (
-      OPTION_MAPS.age.db[demo.age as keyof typeof OPTION_MAPS.age.db] || demo.age
-    ).trim();
     const cleanEducation = (
       OPTION_MAPS.education.db[demo.education as keyof typeof OPTION_MAPS.education.db] ||
       demo.education
@@ -192,8 +182,6 @@ function SurveyPage() {
     const cleanOpen = openAnswer.trim();
 
     if (
-      !(GENDERS as readonly string[]).includes(cleanGender) ||
-      !(AGES as readonly string[]).includes(cleanAge) ||
       !(EDUCATION as readonly string[]).includes(cleanEducation) ||
       !(BANKS as readonly string[]).includes(cleanBank) ||
       !(POSITIONS as readonly string[]).includes(cleanPosition) ||
@@ -229,8 +217,6 @@ function SurveyPage() {
       // Insert response using explicit client-side UUID (no select returning required)
       const { error: rErr } = await supabase.from("responses").insert({
         id: responseId,
-        gender: cleanGender,
-        age: cleanAge,
         education: cleanEducation,
         bank: cleanBank,
         position: cleanPosition,
@@ -513,10 +499,8 @@ function DemographicsStep({
                   if (typeof window !== "undefined") {
                     localStorage.setItem("survey_lang", l);
                   }
-                  // Reset demo fields since Genders/Ages array options will change language
+                  // Reset demo fields since array options will change language
                   setDemo({
-                    gender: "",
-                    age: "",
                     education: "",
                     bank: "",
                     position: "",
@@ -549,18 +533,7 @@ function DemographicsStep({
         />
       </div>
 
-      <Field
-        label={t.demoLabels.gender}
-        options={OPTION_MAPS.gender[lang]}
-        value={demo.gender}
-        onChange={(v) => setDemo({ ...demo, gender: v })}
-      />
-      <Field
-        label={t.demoLabels.age}
-        options={OPTION_MAPS.age[lang]}
-        value={demo.age}
-        onChange={(v) => setDemo({ ...demo, age: v })}
-      />
+
       <Field
         label={t.demoLabels.education}
         options={OPTION_MAPS.education[lang]}

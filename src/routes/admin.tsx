@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BANKS, POSITIONS, GENDERS, EXPERIENCE } from "@/lib/survey-data";
+import { BANKS, POSITIONS, EXPERIENCE } from "@/lib/survey-data";
 import {
   FileSpreadsheet,
   FileText,
@@ -87,7 +87,7 @@ function AdminDashboard() {
 
   const [bank, setBank] = useState<string>("all");
   const [pos, setPos] = useState<string>("all");
-  const [gen, setGen] = useState<string>("all");
+
   const [exp, setExp] = useState<string>("all");
   const [q, setQ] = useState("");
 
@@ -96,16 +96,13 @@ function AdminDashboard() {
     return all.filter((r) => {
       if (bank !== "all" && r.bank !== bank) return false;
       if (pos !== "all" && r.position !== pos) return false;
-      if (gen !== "all" && r.gender !== gen) return false;
       if (exp !== "all" && r.experience !== exp) return false;
       if (q.trim()) {
         const needle = q.trim().toLowerCase();
         const hay = [
           r.bank,
           r.position,
-          r.gender,
           r.education,
-          r.age,
           r.experience,
           r.open_answer ?? "",
         ]
@@ -115,7 +112,7 @@ function AdminDashboard() {
       }
       return true;
     });
-  }, [responsesQ.data, bank, pos, gen, exp, q]);
+  }, [responsesQ.data, bank, pos, exp, q]);
 
   const answers = answersQ.data ?? [];
   const filteredIds = new Set(filtered.map((r) => r.id));
@@ -148,7 +145,7 @@ function AdminDashboard() {
 
   const total = filtered.length;
   const byBank = groupCounts(filtered, "bank");
-  const byGender = groupCounts(filtered, "gender");
+
   const byPosition = groupCounts(filtered, "position");
   const byExperience = groupCounts(filtered, "experience");
 
@@ -230,19 +227,7 @@ function AdminDashboard() {
                 </BarChart>
               </ResponsiveContainer>
             </ChartCard>
-            <ChartCard title="حسب الجنس">
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie data={byGender} dataKey="value" nameKey="name" outerRadius={100} label>
-                    {byGender.map((_, i) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </ChartCard>
+
             <ChartCard title="حسب الوظيفة">
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={byPosition} layout="vertical">
@@ -320,12 +305,7 @@ function AdminDashboard() {
                 onChange={setPos}
                 options={POSITIONS as readonly string[]}
               />
-              <FilterSelect
-                label="الجنس"
-                value={gen}
-                onChange={setGen}
-                options={GENDERS as readonly string[]}
-              />
+
               <FilterSelect
                 label="الخبرة"
                 value={exp}
@@ -349,8 +329,6 @@ function AdminDashboard() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>التاريخ</TableHead>
-                      <TableHead>الجنس</TableHead>
-                      <TableHead>العمر</TableHead>
                       <TableHead>المؤهل</TableHead>
                       <TableHead>البنك</TableHead>
                       <TableHead>الوظيفة</TableHead>
@@ -364,8 +342,6 @@ function AdminDashboard() {
                         <TableCell className="whitespace-nowrap text-xs">
                           {new Date(r.created_at).toLocaleString("ar")}
                         </TableCell>
-                        <TableCell>{r.gender}</TableCell>
-                        <TableCell>{r.age}</TableCell>
                         <TableCell>{r.education}</TableCell>
                         <TableCell>{r.bank}</TableCell>
                         <TableCell>{r.position}</TableCell>
@@ -378,7 +354,7 @@ function AdminDashboard() {
                     {!filtered.length && (
                       <TableRow>
                         <TableCell
-                          colSpan={8}
+                          colSpan={6}
                           className="text-center text-sm text-muted-foreground"
                         >
                           لا توجد بيانات لعرضها بعد.

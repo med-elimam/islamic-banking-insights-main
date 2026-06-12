@@ -31,8 +31,6 @@ export const UI_TRANSLATIONS = {
       1: "غير موافق بشدة",
     },
     demoLabels: {
-      gender: "الجنس",
-      age: "العمر",
       education: "المؤهل العلمي",
       bank: "البنك الذي تعمل فيه",
       position: "الوظيفة",
@@ -70,8 +68,6 @@ export const UI_TRANSLATIONS = {
       1: "Absolument pas d'accord",
     },
     demoLabels: {
-      gender: "Genre",
-      age: "Âge",
       education: "Niveau d'études",
       bank: "Votre banque",
       position: "Poste",
@@ -109,8 +105,6 @@ export const UI_TRANSLATIONS = {
       1: "Strongly Disagree",
     },
     demoLabels: {
-      gender: "Gender",
-      age: "Age",
       education: "Education Level",
       bank: "Your Bank",
       position: "Position",
@@ -120,39 +114,6 @@ export const UI_TRANSLATIONS = {
 };
 
 export const OPTION_MAPS = {
-  gender: {
-    ar: ["ذكر", "أنثى"],
-    fr: ["Homme", "Femme"],
-    en: ["Male", "Female"],
-    // Maps back to Arabic for database consistency
-    db: {
-      Homme: "ذكر",
-      Femme: "أنثى",
-      Male: "ذكر",
-      Female: "أنثى",
-      ذكر: "ذكر",
-      أنثى: "أنثى",
-    },
-  },
-  age: {
-    ar: ["أقل من 30 سنة", "من 30 إلى 40 سنة", "من 41 إلى 50 سنة", "أكثر من 50 سنة"],
-    fr: ["Moins de 30 ans", "30 à 40 ans", "41 à 50 ans", "Plus de 50 ans"],
-    en: ["Under 30 years", "30 to 40 years", "41 to 50 years", "Over 50 years"],
-    db: {
-      "Moins de 30 ans": "أقل من 30 سنة",
-      "30 à 40 ans": "من 30 إلى 40 سنة",
-      "41 à 50 ans": "من 41 إلى 50 سنة",
-      "Plus de 50 ans": "أكثر من 50 سنة",
-      "Under 30 years": "أقل من 30 سنة",
-      "30 to 40 years": "من 30 إلى 40 سنة",
-      "41 to 50 years": "من 41 إلى 50 سنة",
-      "Over 50 years": "أكثر من 50 سنة",
-      "أقل من 30 سنة": "أقل من 30 سنة",
-      "من 30 إلى 40 سنة": "من 30 إلى 40 سنة",
-      "من 41 إلى 50 سنة": "من 41 إلى 50 سنة",
-      "أكثر من 50 سنة": "أكثر من 50 سنة",
-    },
-  },
   education: {
     ar: ["ثانوي", "ليسانس / إجازة", "ماستر", "دكتوراه", "تكوين مهني", "أخرى"],
     fr: [

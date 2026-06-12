@@ -6,13 +6,6 @@ export const LIKERT = [
   { value: 1, text: "غير موافق بشدة" },
 ] as const;
 
-export const GENDERS = ["ذكر", "أنثى"] as const;
-export const AGES = [
-  "أقل من 30 سنة",
-  "من 30 إلى 40 سنة",
-  "من 41 إلى 50 سنة",
-  "أكثر من 50 سنة",
-] as const;
 export const EDUCATION = [
   "ثانوي",
   "ليسانس / إجازة",
