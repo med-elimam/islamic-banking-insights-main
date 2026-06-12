@@ -291,217 +291,221 @@ function buildReportHTML(params: {
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
       
-      .pdf-container {
-        font-family: 'Cairo', 'Tahoma', 'Arial', sans-serif;
-        color: #111827;
-        background-color: #f8faf9;
-        direction: rtl;
-        text-align: right;
+      .pdf-page {
+        width: 800px !important;
+        height: 1130px !important;
+        padding: 40px !important;
+        box-sizing: border-box !important;
+        background: #ffffff !important;
+        position: relative !important;
+        overflow: hidden !important;
+        margin-bottom: 20px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        font-family: 'Cairo', 'Tahoma', 'Arial', sans-serif !important;
+        color: #111827 !important;
+        direction: rtl !important;
+        text-align: right !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
       }
       
-      .pdf-page {
-        width: 800px;
-        height: 1130px;
-        padding: 40px;
-        box-sizing: border-box;
-        background: #ffffff;
-        position: relative;
-        overflow: hidden;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        display: flex;
-        flex-direction: column;
+      .pdf-page * {
+        box-shadow: none !important;
+        text-shadow: none !important;
+        text-decoration-color: transparent !important;
+        outline-color: transparent !important;
       }
       
       .page-header {
-        border-bottom: 3px solid #0f3d2e;
-        padding-bottom: 12px;
-        margin-bottom: 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
+        border-bottom: 3px solid #0f3d2e !important;
+        padding-bottom: 12px !important;
+        margin-bottom: 20px !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: flex-end !important;
       }
       
       .page-header h1 {
-        margin: 0;
-        font-size: 24px;
-        color: #0f3d2e;
-        font-weight: 700;
+        margin: 0 !important;
+        font-size: 24px !important;
+        color: #0f3d2e !important;
+        font-weight: 700 !important;
       }
       
       .page-header p {
-        margin: 4px 0 0 0;
-        font-size: 12px;
-        color: #4b5563;
+        margin: 4px 0 0 0 !important;
+        font-size: 12px !important;
+        color: #4b5563 !important;
       }
 
       .page-title-badge {
-        font-size: 11px;
-        font-weight: 600;
-        background-color: #f8faf9;
-        color: #0f3d2e;
-        padding: 4px 8px;
-        border-radius: 4px;
-        border: 1px solid #d1d5db;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        background-color: #f8faf9 !important;
+        color: #0f3d2e !important;
+        padding: 4px 8px !important;
+        border-radius: 4px !important;
+        border: 1px solid #d1d5db !important;
       }
       
       .page-footer {
-        position: absolute;
-        bottom: 25px;
-        left: 40px;
-        right: 40px;
-        border-top: 1px solid #d1d5db;
-        padding-top: 10px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 10px;
-        color: #4b5563;
+        position: absolute !important;
+        bottom: 25px !important;
+        left: 40px !important;
+        right: 40px !important;
+        border-top: 1px solid #d1d5db !important;
+        padding-top: 10px !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        font-size: 10px !important;
+        color: #4b5563 !important;
       }
       
       /* Grid for cards */
       .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 12px;
-        margin-bottom: 20px;
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 12px !important;
+        margin-bottom: 20px !important;
       }
       
       .stat-card {
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        padding: 12px;
-        background: #f8faf9;
-        text-align: center;
+        border: 1px solid #d1d5db !important;
+        border-radius: 8px !important;
+        padding: 12px !important;
+        background: #f8faf9 !important;
+        text-align: center !important;
       }
       
       .stat-card .title {
-        font-size: 11px;
-        color: #4b5563;
-        margin-bottom: 4px;
-        font-weight: 600;
+        font-size: 11px !important;
+        color: #4b5563 !important;
+        margin-bottom: 4px !important;
+        font-weight: 600 !important;
       }
       
       .stat-card .value {
-        font-size: 20px;
-        font-weight: 700;
-        color: #0f3d2e;
+        font-size: 20px !important;
+        font-weight: 700 !important;
+        color: #0f3d2e !important;
       }
       
       /* Charts styling */
       .chart-card {
-        border: 1px solid #d1d5db;
-        border-radius: 10px;
-        padding: 16px;
-        margin-bottom: 15px;
-        background: #ffffff;
+        border: 1px solid #d1d5db !important;
+        border-radius: 10px !important;
+        padding: 16px !important;
+        margin-bottom: 15px !important;
+        background: #ffffff !important;
       }
       
       .chart-card-title {
-        font-size: 14px;
-        font-weight: 700;
-        color: #0f3d2e;
-        margin-top: 0;
-        margin-bottom: 12px;
-        border-bottom: 1px solid #d1d5db;
-        padding-bottom: 6px;
+        font-size: 14px !important;
+        font-weight: 700 !important;
+        color: #0f3d2e !important;
+        margin-top: 0 !important;
+        margin-bottom: 12px !important;
+        border-bottom: 1px solid #d1d5db !important;
+        padding-bottom: 6px !important;
       }
       
       .bar-row {
-        display: flex;
-        align-items: center;
-        margin-bottom: 8px;
+        display: flex !important;
+        align-items: center !important;
+        margin-bottom: 8px !important;
       }
       
       .bar-label {
-        width: 140px;
-        font-size: 11px;
-        color: #111827;
-        text-align: right;
-        padding-left: 10px;
-        white-space: nowrap;
+        width: 140px !important;
+        font-size: 11px !important;
+        color: #111827 !important;
+        text-align: right !important;
+        padding-left: 10px !important;
+        white-space: nowrap !important;
         overflow: hidden;
-        text-overflow: ellipsis;
+        text-overflow: ellipsis !important;
       }
       
       .bar-wrapper {
-        flex-grow: 1;
-        background-color: #f8faf9;
-        height: 12px;
-        border-radius: 3px;
-        overflow: hidden;
-        margin: 0 8px;
-        border: 1px solid #d1d5db;
+        flex-grow: 1 !important;
+        background-color: #f8faf9 !important;
+        height: 12px !important;
+        border-radius: 3px !important;
+        overflow: hidden !important;
+        margin: 0 8px !important;
+        border: 1px solid #d1d5db !important;
       }
       
       .bar-fill {
-        height: 100%;
-        border-radius: 3px;
+        height: 100% !important;
+        border-radius: 3px !important;
       }
       
       .bar-value {
-        width: 30px;
-        font-size: 11px;
-        font-weight: 600;
-        color: #111827;
-        text-align: left;
+        width: 30px !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        color: #111827 !important;
+        text-align: left !important;
       }
       
       /* Table styling */
       table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 15px;
-        font-size: 11px;
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin-bottom: 15px !important;
+        font-size: 11px !important;
       }
       
       th {
-        background-color: #0f3d2e;
-        color: #ffffff;
-        padding: 8px;
-        border: 1px solid #d1d5db;
-        font-weight: 600;
-        text-align: center;
+        background-color: #0f3d2e !important;
+        color: #ffffff !important;
+        padding: 8px !important;
+        border: 1px solid #d1d5db !important;
+        font-weight: 600 !important;
+        text-align: center !important;
       }
       
       td {
-        padding: 6px;
-        border: 1px solid #d1d5db;
-        text-align: center;
-        color: #111827;
+        padding: 6px !important;
+        border: 1px solid #d1d5db !important;
+        text-align: center !important;
+        color: #111827 !important;
       }
       
       tr:nth-child(even) td {
-        background-color: #f8faf9;
+        background-color: #f8faf9 !important;
       }
       
       .number-cell {
-        font-family: monospace;
-        font-size: 11px;
+        font-family: monospace !important;
+        font-size: 11px !important;
       }
 
       .open-answer-box {
-        border-right: 3px solid #d4a637;
-        background-color: #f8faf9;
-        padding: 8px 12px;
-        margin-bottom: 10px;
-        border-radius: 0 4px 4px 0;
-        font-size: 11px;
-        border-top: 1px solid #d1d5db;
-        border-bottom: 1px solid #d1d5db;
-        border-left: 1px solid #d1d5db;
+        border-right: 3px solid #d4a637 !important;
+        background-color: #f8faf9 !important;
+        padding: 8px 12px !important;
+        margin-bottom: 10px !important;
+        border-radius: 0 4px 4px 0 !important;
+        font-size: 11px !important;
+        border-top: 1px solid #d1d5db !important;
+        border-bottom: 1px solid #d1d5db !important;
+        border-left: 1px solid #d1d5db !important;
       }
 
       .open-answers-container {
-        margin-top: 10px;
+        margin-top: 10px !important;
       }
 
       .section-title {
-        font-size: 15px;
-        font-weight: 700;
-        color: #0f3d2e;
-        margin-top: 0;
-        margin-bottom: 10px;
+        font-size: 15px !important;
+        font-weight: 700 !important;
+        color: #0f3d2e !important;
+        margin-top: 0 !important;
+        margin-bottom: 10px !important;
       }
     </style>
 
@@ -679,7 +683,9 @@ function buildReportHTML(params: {
 }
 
 function sanitizePdfContainer(container: HTMLElement) {
-  const elements = container.getElementsByTagName("*");
+  const elements = Array.from(container.getElementsByTagName("*"));
+  elements.push(container); // Include the container itself
+
   const isUnsupported = (val: string | null): boolean => {
     if (!val) return false;
     const lower = val.toLowerCase();
@@ -692,28 +698,36 @@ function sanitizePdfContainer(container: HTMLElement) {
     );
   };
 
-  // Check the container itself
-  const containerStyle = window.getComputedStyle(container);
-  if (isUnsupported(containerStyle.backgroundColor)) {
-    container.style.backgroundColor = "#f8faf9";
-  }
-
   for (let i = 0; i < elements.length; i++) {
     const el = elements[i] as HTMLElement;
+
+    // Always force-disable shadows using !important inline styles to prevent color parser crashes
+    el.style.setProperty("box-shadow", "none", "important");
+    el.style.setProperty("text-shadow", "none", "important");
+    el.style.setProperty("-webkit-box-shadow", "none", "important");
+
     const style = window.getComputedStyle(el);
 
     if (isUnsupported(style.color)) {
-      el.style.color = "#111827";
+      el.style.setProperty("color", "#111827", "important");
     }
 
     if (isUnsupported(style.backgroundColor)) {
-      el.style.backgroundColor = el.tagName === "TH" ? "#0f3d2e" : "#ffffff";
+      const fallbackColor = el.tagName === "TH" ? "#0f3d2e" : "#ffffff";
+      el.style.setProperty("background-color", fallbackColor, "important");
     }
 
-    if (isUnsupported(style.borderTopColor)) el.style.borderTopColor = "#d1d5db";
-    if (isUnsupported(style.borderBottomColor)) el.style.borderBottomColor = "#d1d5db";
-    if (isUnsupported(style.borderLeftColor)) el.style.borderLeftColor = "#d1d5db";
-    if (isUnsupported(style.borderRightColor)) el.style.borderRightColor = "#d1d5db";
+    if (isUnsupported(style.borderTopColor)) el.style.setProperty("border-top-color", "#d1d5db", "important");
+    if (isUnsupported(style.borderBottomColor)) el.style.setProperty("border-bottom-color", "#d1d5db", "important");
+    if (isUnsupported(style.borderLeftColor)) el.style.setProperty("border-left-color", "#d1d5db", "important");
+    if (isUnsupported(style.borderRightColor)) el.style.setProperty("border-right-color", "#d1d5db", "important");
+
+    if (isUnsupported(style.fill)) {
+      el.style.setProperty("fill", "#111827", "important");
+    }
+    if (isUnsupported(style.stroke)) {
+      el.style.setProperty("stroke", "#d1d5db", "important");
+    }
   }
 }
 
@@ -731,34 +745,64 @@ export async function exportAnalysisToPDF(params: {
     mean: number;
   };
 }) {
-  const container = document.createElement("div");
-  container.style.position = "fixed";
-  container.style.left = "-10000px";
-  container.style.top = "0";
-  container.innerHTML = buildReportHTML(params);
-  document.body.appendChild(container);
+  const iframe = document.createElement("iframe");
+  iframe.style.position = "fixed";
+  iframe.style.left = "-10000px";
+  iframe.style.top = "0";
+  iframe.style.width = "900px";
+  iframe.style.height = "1200px";
+  iframe.style.border = "none";
+  document.body.appendChild(iframe);
+
+  const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+  if (!iframeDoc) {
+    throw new Error("Could not create PDF export sandbox");
+  }
+
+  iframeDoc.open();
+  iframeDoc.write(`
+    <!DOCTYPE html>
+    <html dir="rtl">
+      <head>
+        <meta charset="utf-8">
+        <title>PDF Export Sandbox</title>
+        <style>
+          body {
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+          }
+        </style>
+      </head>
+      <body>
+        ${buildReportHTML(params)}
+      </body>
+    </html>
+  `);
+  iframeDoc.close();
 
   try {
-    // Wait for styling and fonts to render
+    // Wait for styling and fonts to render inside the iframe
     await new Promise((resolve) => setTimeout(resolve, 300));
-    if (typeof document !== "undefined" && document.fonts) {
-      await document.fonts.ready;
+    if (iframeDoc.fonts) {
+      await iframeDoc.fonts.ready;
     }
 
-    // Run the styles sanitizer to remove any lab/oklch color references
-    sanitizePdfContainer(container);
+    // Run the styles sanitizer on the iframe content to remove any lab/oklch references
+    sanitizePdfContainer(iframeDoc.body);
 
     const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
     const pageIds = ["page-1", "page-2", "page-3", "page-4"];
 
     for (let i = 0; i < pageIds.length; i++) {
-      const pageEl = document.getElementById(pageIds[i]);
+      const pageEl = iframeDoc.getElementById(pageIds[i]);
       if (!pageEl) continue;
 
       const canvas = await html2canvas(pageEl, {
         scale: 2,
         backgroundColor: "#ffffff",
         useCORS: true,
+        logging: false,
       });
 
       const pageW = pdf.internal.pageSize.getWidth();
@@ -775,8 +819,8 @@ export async function exportAnalysisToPDF(params: {
 
     pdf.save("survey-dashboard-report.pdf");
   } finally {
-    if (container.parentNode) {
-      container.parentNode.removeChild(container);
+    if (iframe.parentNode) {
+      iframe.parentNode.removeChild(iframe);
     }
   }
 }
