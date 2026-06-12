@@ -165,7 +165,7 @@ function buildReportHTML(params: {
       <div class="bar-row">
         <div class="bar-label">${escapeHtml(b.name)}</div>
         <div class="bar-wrapper">
-          <div class="bar-fill" style="width: ${pct}%; background-color: #2f6a4d;"></div>
+          <div class="bar-fill" style="width: ${pct}%; background-color: #0f3d2e;"></div>
         </div>
         <div class="bar-value">${b.value}</div>
       </div>
@@ -182,7 +182,7 @@ function buildReportHTML(params: {
       <div class="bar-row">
         <div class="bar-label">${escapeHtml(p.name)}</div>
         <div class="bar-wrapper">
-          <div class="bar-fill" style="width: ${pct}%; background-color: #c79a3a;"></div>
+          <div class="bar-fill" style="width: ${pct}%; background-color: #d4a637;"></div>
         </div>
         <div class="bar-value">${p.value}</div>
       </div>
@@ -293,8 +293,8 @@ function buildReportHTML(params: {
       
       .pdf-container {
         font-family: 'Cairo', 'Tahoma', 'Arial', sans-serif;
-        color: #1f2937;
-        background-color: #f3f4f6;
+        color: #111827;
+        background-color: #f8faf9;
         direction: rtl;
         text-align: right;
       }
@@ -314,7 +314,7 @@ function buildReportHTML(params: {
       }
       
       .page-header {
-        border-bottom: 3px solid #2f6a4d;
+        border-bottom: 3px solid #0f3d2e;
         padding-bottom: 12px;
         margin-bottom: 20px;
         display: flex;
@@ -325,24 +325,24 @@ function buildReportHTML(params: {
       .page-header h1 {
         margin: 0;
         font-size: 24px;
-        color: #2f6a4d;
+        color: #0f3d2e;
         font-weight: 700;
       }
       
       .page-header p {
         margin: 4px 0 0 0;
         font-size: 12px;
-        color: #6b7280;
+        color: #4b5563;
       }
 
       .page-title-badge {
         font-size: 11px;
         font-weight: 600;
-        background-color: rgba(47, 106, 77, 0.1);
-        color: #2f6a4d;
+        background-color: #f8faf9;
+        color: #0f3d2e;
         padding: 4px 8px;
         border-radius: 4px;
-        border: 1px solid rgba(47, 106, 77, 0.2);
+        border: 1px solid #d1d5db;
       }
       
       .page-footer {
@@ -350,13 +350,13 @@ function buildReportHTML(params: {
         bottom: 25px;
         left: 40px;
         right: 40px;
-        border-top: 1px solid #e5e7eb;
+        border-top: 1px solid #d1d5db;
         padding-top: 10px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         font-size: 10px;
-        color: #9ca3af;
+        color: #4b5563;
       }
       
       /* Grid for cards */
@@ -368,16 +368,16 @@ function buildReportHTML(params: {
       }
       
       .stat-card {
-        border: 1px solid #e5e7eb;
+        border: 1px solid #d1d5db;
         border-radius: 8px;
         padding: 12px;
-        background: #f9fafb;
+        background: #f8faf9;
         text-align: center;
       }
       
       .stat-card .title {
         font-size: 11px;
-        color: #6b7280;
+        color: #4b5563;
         margin-bottom: 4px;
         font-weight: 600;
       }
@@ -385,12 +385,12 @@ function buildReportHTML(params: {
       .stat-card .value {
         font-size: 20px;
         font-weight: 700;
-        color: #2f6a4d;
+        color: #0f3d2e;
       }
       
       /* Charts styling */
       .chart-card {
-        border: 1px solid #e5e7eb;
+        border: 1px solid #d1d5db;
         border-radius: 10px;
         padding: 16px;
         margin-bottom: 15px;
@@ -400,10 +400,10 @@ function buildReportHTML(params: {
       .chart-card-title {
         font-size: 14px;
         font-weight: 700;
-        color: #2f6a4d;
+        color: #0f3d2e;
         margin-top: 0;
         margin-bottom: 12px;
-        border-bottom: 1px solid #f3f4f6;
+        border-bottom: 1px solid #d1d5db;
         padding-bottom: 6px;
       }
       
@@ -416,7 +416,7 @@ function buildReportHTML(params: {
       .bar-label {
         width: 140px;
         font-size: 11px;
-        color: #374151;
+        color: #111827;
         text-align: right;
         padding-left: 10px;
         white-space: nowrap;
@@ -426,11 +426,12 @@ function buildReportHTML(params: {
       
       .bar-wrapper {
         flex-grow: 1;
-        background-color: #f3f4f6;
+        background-color: #f8faf9;
         height: 12px;
         border-radius: 3px;
         overflow: hidden;
         margin: 0 8px;
+        border: 1px solid #d1d5db;
       }
       
       .bar-fill {
@@ -442,7 +443,7 @@ function buildReportHTML(params: {
         width: 30px;
         font-size: 11px;
         font-weight: 600;
-        color: #1f2937;
+        color: #111827;
         text-align: left;
       }
       
@@ -455,23 +456,23 @@ function buildReportHTML(params: {
       }
       
       th {
-        background-color: #2f6a4d;
+        background-color: #0f3d2e;
         color: #ffffff;
         padding: 8px;
-        border: 1px solid #e5e7eb;
+        border: 1px solid #d1d5db;
         font-weight: 600;
         text-align: center;
       }
       
       td {
         padding: 6px;
-        border: 1px solid #e5e7eb;
+        border: 1px solid #d1d5db;
         text-align: center;
-        color: #374151;
+        color: #111827;
       }
       
       tr:nth-child(even) td {
-        background-color: #f9fafb;
+        background-color: #f8faf9;
       }
       
       .number-cell {
@@ -480,12 +481,15 @@ function buildReportHTML(params: {
       }
 
       .open-answer-box {
-        border-right: 3px solid #c79a3a;
-        background-color: #fdfbf7;
+        border-right: 3px solid #d4a637;
+        background-color: #f8faf9;
         padding: 8px 12px;
         margin-bottom: 10px;
         border-radius: 0 4px 4px 0;
         font-size: 11px;
+        border-top: 1px solid #d1d5db;
+        border-bottom: 1px solid #d1d5db;
+        border-left: 1px solid #d1d5db;
       }
 
       .open-answers-container {
@@ -495,7 +499,7 @@ function buildReportHTML(params: {
       .section-title {
         font-size: 15px;
         font-weight: 700;
-        color: #2f6a4d;
+        color: #0f3d2e;
         margin-top: 0;
         margin-bottom: 10px;
       }
@@ -674,6 +678,45 @@ function buildReportHTML(params: {
   `;
 }
 
+function sanitizePdfContainer(container: HTMLElement) {
+  const elements = container.getElementsByTagName("*");
+  const isUnsupported = (val: string | null): boolean => {
+    if (!val) return false;
+    const lower = val.toLowerCase();
+    return (
+      lower.includes("lab(") ||
+      lower.includes("oklab(") ||
+      lower.includes("lch(") ||
+      lower.includes("oklch(") ||
+      lower.includes("color-mix(")
+    );
+  };
+
+  // Check the container itself
+  const containerStyle = window.getComputedStyle(container);
+  if (isUnsupported(containerStyle.backgroundColor)) {
+    container.style.backgroundColor = "#f8faf9";
+  }
+
+  for (let i = 0; i < elements.length; i++) {
+    const el = elements[i] as HTMLElement;
+    const style = window.getComputedStyle(el);
+
+    if (isUnsupported(style.color)) {
+      el.style.color = "#111827";
+    }
+
+    if (isUnsupported(style.backgroundColor)) {
+      el.style.backgroundColor = el.tagName === "TH" ? "#0f3d2e" : "#ffffff";
+    }
+
+    if (isUnsupported(style.borderTopColor)) el.style.borderTopColor = "#d1d5db";
+    if (isUnsupported(style.borderBottomColor)) el.style.borderBottomColor = "#d1d5db";
+    if (isUnsupported(style.borderLeftColor)) el.style.borderLeftColor = "#d1d5db";
+    if (isUnsupported(style.borderRightColor)) el.style.borderRightColor = "#d1d5db";
+  }
+}
+
 export async function exportAnalysisToPDF(params: {
   responses: ResponseRow[];
   qStats: QuestionStat[];
@@ -701,6 +744,9 @@ export async function exportAnalysisToPDF(params: {
     if (typeof document !== "undefined" && document.fonts) {
       await document.fonts.ready;
     }
+
+    // Run the styles sanitizer to remove any lab/oklch color references
+    sanitizePdfContainer(container);
 
     const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
     const pageIds = ["page-1", "page-2", "page-3", "page-4"];
