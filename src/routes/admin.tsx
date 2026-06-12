@@ -35,7 +35,20 @@ import {
   ListChecks,
   BarChart3,
   Settings2,
+  Trash2,
 } from "lucide-react";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   BarChart,
   Bar,
@@ -90,6 +103,27 @@ function AdminDashboard() {
   const [exportingPDF, setExportingPDF] = useState(false);
   const [exp, setExp] = useState<string>("all");
   const [q, setQ] = useState("");
+
+  const handleDeleteResponse = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from("responses")
+        .delete()
+        .eq("id", id);
+      
+      if (error) {
+        throw error;
+      }
+
+      toast.success("تم حذف الاستجابة بنجاح.");
+      // Invalidate queries to trigger refetch
+      responsesQ.refetch();
+      answersQ.refetch();
+    } catch (err: any) {
+      console.error("Failed to delete response:", err);
+      toast.error("حدث خطأ أثناء حذف الاستجابة: " + err.message);
+    }
+  };
 
   const filtered = useMemo(() => {
     const all = responsesQ.data ?? [];
@@ -368,6 +402,7 @@ function AdminDashboard() {
                       <TableHead>الوظيفة</TableHead>
                       <TableHead>الخبرة</TableHead>
                       <TableHead>إجابة مفتوحة</TableHead>
+                      <TableHead className="w-[80px] text-center">إجراءات</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -383,12 +418,42 @@ function AdminDashboard() {
                         <TableCell className="max-w-xs truncate" title={r.open_answer ?? ""}>
                           {r.open_answer ?? "—"}
                         </TableCell>
+                        <TableCell className="text-center">
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>حذف الاستجابة؟</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  هل أنت متأكد من رغبتك في حذف هذه الاستجابة نهائياً؟ سيؤدي هذا إلى حذف جميع الإجابات التابعة لها ولا يمكن التراجع عن هذا الإجراء.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>تراجع</AlertDialogCancel>
+                                <AlertDialogAction
+                                  className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                                  onClick={() => handleDeleteResponse(r.id)}
+                                >
+                                  حذف نهائي
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </TableCell>
                       </TableRow>
                     ))}
                     {!filtered.length && (
                       <TableRow>
                         <TableCell
-                          colSpan={6}
+                          colSpan={7}
                           className="text-center text-sm text-muted-foreground"
                         >
                           لا توجد بيانات لعرضها بعد.
