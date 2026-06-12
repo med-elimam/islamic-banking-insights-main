@@ -87,7 +87,7 @@ function AdminDashboard() {
 
   const [bank, setBank] = useState<string>("all");
   const [pos, setPos] = useState<string>("all");
-
+  const [exportingPDF, setExportingPDF] = useState(false);
   const [exp, setExp] = useState<string>("all");
   const [q, setQ] = useState("");
 
@@ -166,10 +166,44 @@ function AdminDashboard() {
             <FileSpreadsheet className="ml-2 h-4 w-4" /> تصدير Excel
           </Button>
           <Button
-            onClick={() => exportAnalysisToPDF(qStats, axisStats, { responses: total })}
+            onClick={async () => {
+              setExportingPDF(true);
+              try {
+                await exportAnalysisToPDF({
+                  responses: filtered,
+                  qStats,
+                  axisStats,
+                  byBank,
+                  byPosition,
+                  byExperience,
+                  totals: {
+                    responses: total,
+                    banks: new Set(filtered.map((r) => r.bank)).size,
+                    positions: new Set(filtered.map((r) => r.position)).size,
+                    mean: axisStats.length
+                      ? +(axisStats.reduce((s, a) => s + a.mean, 0) / axisStats.length).toFixed(2)
+                      : 0,
+                  },
+                });
+              } catch (e) {
+                console.error("PDF export failed:", e);
+              } finally {
+                setExportingPDF(false);
+              }
+            }}
+            disabled={exportingPDF}
             className="bg-primary text-primary-foreground"
           >
-            <FileText className="ml-2 h-4 w-4" /> تصدير PDF
+            {exportingPDF ? (
+              <>
+                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                جاري التصدير...
+              </>
+            ) : (
+              <>
+                <FileText className="ml-2 h-4 w-4" /> تصدير PDF
+              </>
+            )}
           </Button>
         </div>
       </div>
