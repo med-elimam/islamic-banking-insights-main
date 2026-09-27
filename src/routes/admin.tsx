@@ -75,7 +75,7 @@ export const Route = createFileRoute("/admin")({
 const COLORS = ["#2f6a4d", "#c79a3a", "#3d7da6", "#a85a3a", "#7a5da6", "#5a8c6e"];
 
 function AdminDashboard() {
-  const { axes: dynAxes, allQuestions, isLoading: qLoading } = useQuestions();
+  const { axes: dynAxes, allQuestions, isLoading: qLoading } = useQuestions({ activeOnly: true });
   const responsesQ = useQuery({
     queryKey: ["admin", "responses"],
     queryFn: async () => {
@@ -106,11 +106,8 @@ function AdminDashboard() {
 
   const handleDeleteResponse = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from("responses")
-        .delete()
-        .eq("id", id);
-      
+      const { error } = await supabase.from("responses").delete().eq("id", id);
+
       if (error) {
         throw error;
       }
@@ -119,9 +116,10 @@ function AdminDashboard() {
       // Invalidate queries to trigger refetch
       responsesQ.refetch();
       answersQ.refetch();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to delete response:", err);
-      toast.error("حدث خطأ أثناء حذف الاستجابة: " + err.message);
+      const message = err instanceof Error ? err.message : "خطأ غير معروف";
+      toast.error("حدث خطأ أثناء حذف الاستجابة: " + message);
     }
   };
 
@@ -134,10 +132,13 @@ function AdminDashboard() {
       if (q.trim()) {
         const needle = q.trim().toLowerCase();
         const hay = [
+          r.gender,
+          r.age,
           r.bank,
           r.position,
           r.education,
           r.experience,
+          r.islamic_training,
           r.open_answer ?? "",
         ]
           .join(" ")
@@ -397,10 +398,13 @@ function AdminDashboard() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>التاريخ</TableHead>
+                      <TableHead>الجنس</TableHead>
+                      <TableHead>العمر</TableHead>
                       <TableHead>المؤهل</TableHead>
                       <TableHead>البنك</TableHead>
                       <TableHead>الوظيفة</TableHead>
                       <TableHead>الخبرة</TableHead>
+                      <TableHead>تكوين إسلامي</TableHead>
                       <TableHead>إجابة مفتوحة</TableHead>
                       <TableHead className="w-[80px] text-center">إجراءات</TableHead>
                     </TableRow>
@@ -411,10 +415,13 @@ function AdminDashboard() {
                         <TableCell className="whitespace-nowrap text-xs">
                           {new Date(r.created_at).toLocaleString("ar")}
                         </TableCell>
+                        <TableCell>{r.gender ?? "—"}</TableCell>
+                        <TableCell>{r.age ?? "—"}</TableCell>
                         <TableCell>{r.education}</TableCell>
                         <TableCell>{r.bank}</TableCell>
                         <TableCell>{r.position}</TableCell>
                         <TableCell>{r.experience}</TableCell>
+                        <TableCell>{r.islamic_training ?? "—"}</TableCell>
                         <TableCell className="max-w-xs truncate" title={r.open_answer ?? ""}>
                           {r.open_answer ?? "—"}
                         </TableCell>
@@ -433,7 +440,8 @@ function AdminDashboard() {
                               <AlertDialogHeader>
                                 <AlertDialogTitle>حذف الاستجابة؟</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  هل أنت متأكد من رغبتك في حذف هذه الاستجابة نهائياً؟ سيؤدي هذا إلى حذف جميع الإجابات التابعة لها ولا يمكن التراجع عن هذا الإجراء.
+                                  هل أنت متأكد من رغبتك في حذف هذه الاستجابة نهائياً؟ سيؤدي هذا إلى
+                                  حذف جميع الإجابات التابعة لها ولا يمكن التراجع عن هذا الإجراء.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
@@ -453,7 +461,7 @@ function AdminDashboard() {
                     {!filtered.length && (
                       <TableRow>
                         <TableCell
-                          colSpan={7}
+                          colSpan={10}
                           className="text-center text-sm text-muted-foreground"
                         >
                           لا توجد بيانات لعرضها بعد.

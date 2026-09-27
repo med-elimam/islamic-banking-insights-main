@@ -1,215 +1,193 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Link } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, BookOpen, BarChart3, GraduationCap } from "lucide-react";
-import { useState, useEffect } from "react";
+import { ShieldCheck, BookOpen, BarChart3, Download } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { Language } from "@/lib/survey-translations";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "تحول البنوك التقليدية إلى بنوك إسلامية — استبيان أكاديمي" },
+      { title: "استبيان أكاديمي — تحول البنوك التقليدية إلى مصارف إسلامية" },
       {
         name: "description",
-        content:
-          "استبيان أكاديمي حول واقع وتحديات تحول البنوك التقليدية الموريتانية إلى الصيرفة الإسلامية.",
-      },
-      { property: "og:title", content: "تحول البنوك التقليدية إلى بنوك إسلامية" },
-      {
-        property: "og:description",
-        content: "استبيان أكاديمي — موظفو وإطارات البنوك التقليدية في موريتانيا.",
+        content: "بحث أكاديمي حول تحول البنوك التقليدية إلى مصارف إسلامية في موريتانيا.",
       },
     ],
   }),
   component: Index,
 });
 
+const COPY = {
+  ar: {
+    survey: "استبيان أكاديمي",
+    researcherLogin: "دخول الباحث",
+    badge: "بحث في إطار أطروحة دكتوراه — السرية مضمونة",
+    title:
+      "التحول من البنوك التقليدية إلى مصارف إسلامية ودوره في تطوير المنظومة المصرفية الموريتانية في ضوء تجارب بعض الدول العربية",
+    byline: "بحث في إطار أطروحة دكتوراه: مريم الإمام",
+    introTitle: "السادة مديري وموظفي البنوك المحترمين،",
+    intro:
+      "في إطار إعداد أطروحة دكتوراه، تضع الطالبة الباحثة مريم الإمام بين أيديكم هذا الاستبيان الأكاديمي، الذي يهدف إلى جمع آرائكم وخبراتكم المهنية حول واقع هذا التحول، والتحديات التي تواجهه، والنتائج التي تحققت بعد التحول.",
+    privacy: "نؤكد لكم أن جميع الإجابات ستُستخدم حصراً لأغراض البحث العلمي، وستُعامل بسرية تامة.",
+    thanks: "نشكركم على وقتكم وتعاونكم القيّم.",
+    start: "ابدأ الاستبيان",
+    dashboard: "لوحة الباحث",
+    download: "تنزيل النسخة الورقية PDF",
+    cards: [
+      ["سرية تامة", "جميع الإجابات تُستخدم حصراً لأغراض البحث العلمي."],
+      ["ثلاثة محاور", "27 عبارة وفق مقياس ليكرت الثلاثي، إضافة إلى سؤال مفتوح."],
+      ["تحليل أكاديمي", "تحليل منظم للنتائج حسب المحاور والبيانات العامة."],
+    ],
+  },
+  fr: {
+    survey: "Questionnaire académique",
+    researcherLogin: "Accès chercheur",
+    badge: "Recherche doctorale — Confidentialité garantie",
+    title:
+      "Le passage des banques traditionnelles aux banques islamiques et son rôle dans le développement du système bancaire mauritanien à la lumière des expériences de certains pays arabes",
+    byline: "Recherche doctorale de Maryam Limam",
+    introTitle: "Mesdames et Messieurs les directeurs et membres du personnel bancaire,",
+    intro:
+      "Dans le cadre de la préparation de sa thèse de doctorat, la doctorante-chercheuse Maryam Limam vous soumet ce questionnaire académique. Il vise à recueillir vos avis et votre expérience professionnelle sur la réalité de cette transformation, les défis auxquels elle est confrontée et les résultats obtenus après sa mise en œuvre.",
+    privacy:
+      "Toutes les réponses seront utilisées exclusivement à des fins de recherche scientifique et traitées dans la plus stricte confidentialité.",
+    thanks: "Nous vous remercions pour votre temps et votre précieuse collaboration.",
+    start: "Commencer le questionnaire",
+    dashboard: "Espace chercheur",
+    download: "Télécharger la version papier PDF",
+    cards: [
+      ["Confidentialité", "Toutes les réponses sont réservées à la recherche scientifique."],
+      [
+        "Trois axes",
+        "27 affirmations sur une échelle de Likert à trois modalités et une question ouverte.",
+      ],
+      ["Analyse académique", "Analyse structurée des résultats par axe et données générales."],
+    ],
+  },
+  en: {
+    survey: "Academic Questionnaire",
+    researcherLogin: "Researcher Login",
+    badge: "Doctoral Research — Confidentiality Guaranteed",
+    title:
+      "The transition from traditional banks to Islamic banks and its role in the development of the Mauritanian banking system in light of the experiences of some Arab countries",
+    byline: "Doctoral Research by Maryam Limam",
+    introTitle: "Dear Bank Directors and Employees,",
+    intro:
+      "As part of her doctoral thesis, doctoral researcher Maryam Limam invites you to complete this academic questionnaire. It aims to collect your opinions and professional experience regarding the current state of this transition, the challenges it faces, and the results achieved following its implementation.",
+    privacy:
+      "All responses will be used exclusively for academic research purposes and will be treated with strict confidentiality.",
+    thanks: "Thank you for your time and valuable cooperation.",
+    start: "Start Questionnaire",
+    dashboard: "Researcher Dashboard",
+    download: "Download the Paper PDF",
+    cards: [
+      ["Strict Confidentiality", "All responses are used exclusively for academic research."],
+      [
+        "Three Sections",
+        "27 statements on a three-point Likert scale plus one open-ended question.",
+      ],
+      ["Academic Analysis", "Structured analysis by section and general information."],
+    ],
+  },
+} as const;
+
 function Index() {
-  const [lang, setLang] = useState<"ar" | "fr" | "en">("ar");
+  const [lang, setLang] = useState<Language>("ar");
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("survey_lang");
-      if (saved === "ar" || saved === "fr" || saved === "en") {
-        setLang(saved);
-      }
-    }
+    const saved = localStorage.getItem("survey_lang");
+    if (saved === "ar" || saved === "fr" || saved === "en") setLang(saved);
   }, []);
 
-  const changeLang = (l: "ar" | "fr" | "en") => {
-    setLang(l);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("survey_lang", l);
-    }
+  const changeLang = (language: Language) => {
+    setLang(language);
+    localStorage.setItem("survey_lang", language);
   };
+  const t = COPY[lang];
+  const icons = [ShieldCheck, BookOpen, BarChart3];
 
   return (
-    <div className="bg-hero min-h-screen flex flex-col" dir="rtl">
-      <header
-        className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6 w-full flex-row"
-        dir="rtl"
-      >
-        <div className="flex items-center gap-2 sm:gap-3">
-          <img src="/logo.svg" alt="MD Logo" className="h-8 w-8 sm:h-10 sm:w-10 object-contain" />
-          <span className="font-display text-base sm:text-lg font-bold text-foreground">
-            استبيان أكاديمي
-          </span>
+    <div
+      className={`min-h-screen bg-hero flex flex-col ${lang === "ar" ? "font-arabic" : "font-times"}`}
+      dir={lang === "ar" ? "rtl" : "ltr"}
+    >
+      <header className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-6">
+        <div className="flex items-center gap-3">
+          <img src="/logo.svg" alt="Logo" className="h-10 w-10 object-contain" />
+          <span className="text-lg font-bold text-foreground">{t.survey}</span>
         </div>
-        <Link
-          to="/auth"
-          className="text-xs sm:text-sm text-muted-foreground hover:text-primary border border-border/80 rounded-full px-3 py-1 bg-background/50 transition"
-        >
-          دخول الباحث
-        </Link>
+        <div className="flex items-center gap-3">
+          <div className="flex rounded-full border border-border bg-background/70 p-1">
+            {(["ar", "fr", "en"] as const).map((language) => (
+              <button
+                key={language}
+                type="button"
+                onClick={() => changeLang(language)}
+                className={`rounded-full px-3 py-1 text-xs font-semibold ${lang === language ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+              >
+                {language === "ar" ? "العربية" : language === "fr" ? "Français" : "English"}
+              </button>
+            ))}
+          </div>
+          <Link
+            to="/auth"
+            className="rounded-full border border-border bg-background/50 px-3 py-1 text-xs text-muted-foreground hover:text-primary"
+          >
+            {t.researcherLogin}
+          </Link>
+        </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 pb-20 pt-10">
-        <section className="mx-auto max-w-3xl text-center">
-          <p className="mb-4 inline-block rounded-full border border-gold/40 bg-gold/10 px-4 py-1 text-xs font-semibold text-gold-foreground">
-            بحث علمي محكّم — السرية مضمونة
+      <main className="mx-auto w-full max-w-6xl px-6 pb-20 pt-8">
+        <section className="mx-auto max-w-4xl text-center">
+          <p className="mb-5 inline-block rounded-full border border-primary/20 bg-primary/5 px-4 py-1 text-xs font-semibold text-primary">
+            {t.badge}
           </p>
-          <h1 className="font-display text-3xl leading-tight text-foreground sm:text-5xl">
-            تحوُّل البنوك التقليدية إلى <span className="text-gradient-gold">بنوك إسلامية</span>
-            <br />
-            الواقع والتحديات في موريتانيا
+          <h1 className="text-3xl font-bold leading-tight text-foreground sm:text-5xl">
+            {t.title}
           </h1>
-          <p className="mt-6 text-base leading-loose text-muted-foreground sm:text-lg">
-            يهدف هذا الاستبيان إلى استطلاع آراء موظفي وإطارات البنوك التقليدية في موريتانيا حول واقع
-         التحول نحو الصيرفة الإسلامية وأهم التحديات التي تواجه هذا التحول، وذلك في إطار بحث
-            أكاديمي.
-          </p>
-
+          <p className="mt-5 text-base font-semibold text-primary sm:text-lg">{t.byline}</p>
+          <div className="mx-auto mt-8 max-w-3xl rounded-2xl border border-border bg-card p-6 text-start shadow-sm">
+            <p className="font-bold text-foreground">{t.introTitle}</p>
+            <p className="mt-3 leading-8 text-muted-foreground">{t.intro}</p>
+            <p className="mt-3 leading-8 text-muted-foreground">{t.privacy}</p>
+            <p className="mt-3 font-semibold text-foreground">{t.thanks}</p>
+          </div>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Button
-              asChild
-              size="lg"
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              <Link to="/survey">ابدأ الاستبيان</Link>
+            <Button asChild size="lg" className="bg-primary text-primary-foreground">
+              <Link to="/survey">{t.start}</Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link to="/auth">لوحة الباحث</Link>
+              <Link to="/auth">{t.dashboard}</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <a
+                href={`/questionnaires/Questionnaire_academique_${lang.toUpperCase()}_Maryam_Limam.pdf`}
+                download
+              >
+                <Download className="h-4 w-4" />
+                {t.download}
+              </a>
             </Button>
           </div>
         </section>
 
-        <section className="mx-auto mt-16 grid max-w-5xl gap-6 sm:grid-cols-3">
-          {[
-            {
-              icon: ShieldCheck,
-              title: "سرية تامة",
-              text: "جميع الإجابات تُستخدم لأغراض البحث العلمي حصراً.",
-            },
-            {
-              icon: BookOpen,
-              title: "خمسة محاور",
-              text: "٣٩ عبارة وفق مقياس ليكرت الخماسي + سؤال مفتوح.",
-            },
-            {
-              icon: BarChart3,
-              title: "تحليل أكاديمي",
-              text: "متوسطات، انحرافات، تفسير، ورسوم بيانية.",
-            },
-          ].map(({ icon: Icon, title, text }) => (
-            <div key={title} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-              <Icon className="mb-3 h-6 w-6 text-gold" />
-              <h3 className="mb-2 font-display text-lg font-bold text-foreground">{title}</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">{text}</p>
-            </div>
-          ))}
-        </section>
-
-        <div className="mx-auto mt-12 max-w-3xl flex justify-end gap-2 mb-3 px-2 w-full">
-          {(["ar", "fr", "en"] as const).map((l) => {
-            const labels = { ar: "العربية", fr: "Français", en: "English" };
+        <section className="mx-auto mt-14 grid max-w-5xl gap-5 sm:grid-cols-3">
+          {t.cards.map(([title, text], index) => {
+            const Icon = icons[index];
             return (
-              <button
-                key={l}
-                type="button"
-                onClick={() => changeLang(l)}
-                className={`px-3 py-1 text-xs rounded-full border transition ${
-                  lang === l
-                    ? "bg-primary text-primary-foreground border-primary font-semibold"
-                    : "bg-background text-foreground border-border hover:bg-muted cursor-pointer"
-                }`}
-              >
-                {labels[l]}
-              </button>
+              <div key={title} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+                <Icon className="mb-3 h-6 w-6 text-primary" />
+                <h2 className="text-lg font-bold text-foreground">{title}</h2>
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">{text}</p>
+              </div>
             );
           })}
-        </div>
-
-        <section
-          className="mx-auto max-w-3xl rounded-2xl border border-border bg-card/60 p-6 text-sm leading-loose text-muted-foreground w-full"
-          dir={lang === "ar" ? "rtl" : "ltr"}
-        >
-          {lang === "ar" && (
-            <p>
-              <strong className="text-foreground">السادة موظفي البنوك المحترمين،</strong>
-              <br />
-              في إطار إعداد أطروحة دكتوراه حول موضوع تحول البنوك التقليدية إلى بنوك إسلامية في
-              موريتانيا، تضع الطالبة الباحثة مريم الإمام بين أيديكم هذا الاستبيان الأكاديمي بهدف جمع
-              آرائكم وخبراتكم المهنية حول واقع هذا التحول، والتحديات التي تواجهه، وآفاقه المستقبلية.
-              <br />
-              نؤكد لكم أن جميع الإجابات ستُستخدم حصراً لأغراض البحث العلمي، وستُعامل بسرية تامة.
-              <br />
-              نشكركم على وقتكم وتعاونكم القيّم.
-            </p>
-          )}
-          {lang === "fr" && (
-            <p>
-              <strong className="text-foreground">
-                Mesdames, Messieurs les employés des banques,
-              </strong>
-              <br />
-              Dans le cadre de la préparation d’une thèse de doctorat portant sur la transformation
-              des banques conventionnelles en banques islamiques en Mauritanie, la doctorante Mariam
-              El Imam met à votre disposition ce questionnaire académique afin de recueillir vos
-              avis et vos expériences professionnelles sur la réalité de cette transformation, les
-              défis qu’elle rencontre et ses perspectives d’évolution.
-              <br />
-              Nous vous assurons que l’ensemble des réponses sera utilisé exclusivement à des fins
-              de recherche scientifique et sera traité dans la plus stricte confidentialité.
-              <br />
-              Nous vous remercions pour votre temps et votre précieuse collaboration.
-            </p>
-          )}
-          {lang === "en" && (
-            <p>
-              <strong className="text-foreground">Dear respected bank employees,</strong>
-              <br />
-              As part of the preparation of a doctoral thesis on the transformation of conventional
-              banks into Islamic banks in Mauritania, the doctoral researcher Mariam El Imam is
-              conducting this academic survey to collect your views and professional experience
-              regarding the current state of this transformation, the challenges it faces, and its
-              future prospects.
-              <br />
-              All responses will be used exclusively for scientific research purposes and will be
-              treated with strict confidentiality.
-              <br />
-              Thank you for your time and valuable cooperation.
-            </p>
-          )}
         </section>
       </main>
 
-      <footer
-        className="border-t border-border/60 bg-card/40 py-6 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-1.5 mt-auto px-4 w-full"
-        dir={lang === "ar" ? "rtl" : "ltr"}
-      >
-        <div className="leading-relaxed max-w-full text-center">
-          {lang === "ar"
-            ? "© 2026 — استبيان أكاديمي. جميع الحقوق محفوظة لأغراض البحث العلمي."
-            : lang === "fr"
-              ? "© 2026 — Questionnaire académique. Tous droits réservés à des fins de recherche scientifique."
-              : "© 2026 — Academic Survey. All rights reserved for scientific research purposes."}
-        </div>
-        <div className="text-[10px] opacity-75 font-mono text-center">
-          {lang === "ar"
-            ? "تطوير: محمد الإمام"
-            : lang === "fr"
-              ? "Développé par Mohamed el imam"
-              : "Developed by Mohamed el imam"}
-        </div>
+      <footer className="mt-auto border-t border-border/60 bg-card/40 px-4 py-6 text-center text-xs text-muted-foreground">
+        © 2026 — {t.survey} · Maryam Limam
       </footer>
     </div>
   );

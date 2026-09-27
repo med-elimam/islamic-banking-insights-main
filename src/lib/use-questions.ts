@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { AXES } from "@/lib/survey-data";
 
 export type DbQuestion = {
   id: string;
@@ -47,10 +48,27 @@ export function useQuestions(opts: { activeOnly?: boolean } = {}) {
   const query = useQuery({
     queryKey: ["survey_questions", opts.activeOnly ? "active" : "all"],
     queryFn: () => fetchQuestions(opts),
+    enabled: !opts.activeOnly,
   });
-  const all = query.data ?? [];
+  const canonicalQuestions: DbQuestion[] = AXES.flatMap((axis) =>
+    axis.questions.map((question, index) => ({
+      id: `canonical-${question.number}`,
+      number: question.number,
+      axis_id: axis.id,
+      axis_name: axis.name,
+      text: question.text,
+      order_index: index + 1,
+      active: true,
+    })),
+  );
+  // The public questionnaire is versioned in code so it always matches the
+  // approved Arabic, French and English paper editions. The database remains
+  // available to the admin question manager for archival/editing purposes.
+  const all = opts.activeOnly ? canonicalQuestions : (query.data ?? []);
   return {
     ...query,
+    isLoading: opts.activeOnly ? false : query.isLoading,
+    isError: opts.activeOnly ? false : query.isError,
     questions: all,
     axes: buildAxes(all),
     allQuestions: all.map((q) => ({

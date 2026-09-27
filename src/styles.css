@@ -49,8 +49,8 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --color-gold: var(--gold);
   --color-gold-foreground: var(--gold-foreground);
-  --font-display: "Amiri", "Cairo", serif;
-  --font-sans: "Cairo", "Tajawal", system-ui, sans-serif;
+  --font-display: "Geeza Pro", "Noto Naskh Arabic", "Times New Roman", serif;
+  --font-sans: "Times New Roman", "Geeza Pro", serif;
 }
 
 :root {
@@ -153,18 +153,7 @@
 }
 
 @utility bg-hero {
-  background-image:
-    radial-gradient(at 80% 0%, color-mix(in oklab, var(--gold) 18%, transparent), transparent 55%),
-    radial-gradient(
-      at 0% 100%,
-      color-mix(in oklab, var(--primary) 28%, transparent),
-      transparent 55%
-    ),
-    linear-gradient(
-      180deg,
-      var(--background),
-      color-mix(in oklab, var(--primary) 6%, var(--background))
-    );
+  background-image: linear-gradient(180deg, #ffffff, #f7f7f5);
 }
 
 @utility text-gradient-gold {
@@ -176,4 +165,14 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+.font-arabic,
+.font-arabic * {
+  font-family: "Geeza Pro", "Noto Naskh Arabic", "Traditional Arabic", serif;
+}
+
+.font-times,
+.font-times * {
+  font-family: "Times New Roman", Times, serif;
 }

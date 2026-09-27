@@ -44,10 +44,10 @@ export const Route = createFileRoute("/analysis")({
   ),
 });
 
-const LIKERT_COLORS = ["#a85a3a", "#c79a3a", "#8c8c8c", "#5a8c6e", "#2f6a4d"];
+const LIKERT_COLORS = ["#a85a3a", "#8c8c8c", "#2f6a4d"];
 
 function AnalysisPage() {
-  const { axes: dynAxes, allQuestions, isLoading: qLoading } = useQuestions();
+  const { axes: dynAxes, allQuestions, isLoading: qLoading } = useQuestions({ activeOnly: true });
   const answersQ = useQuery({
     queryKey: ["analysis", "answers"],
     queryFn: async () => {
@@ -80,14 +80,14 @@ function AnalysisPage() {
   const orderedQuestions = [...qStats].sort((a, b) => b.mean - a.mean);
 
   const likertPieFromAll = (() => {
-    const sums = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } as Record<1 | 2 | 3 | 4 | 5, number>;
-    for (const a of answersQ.data ?? []) sums[a.answer_value as 1 | 2 | 3 | 4 | 5]++;
+    const sums = { 1: 0, 2: 0, 3: 0 } as Record<1 | 2 | 3, number>;
+    for (const a of answersQ.data ?? []) {
+      if (a.answer_value >= 1 && a.answer_value <= 3) sums[a.answer_value as 1 | 2 | 3]++;
+    }
     return [
-      { name: "غير موافق بشدة", value: sums[1] },
-      { name: "غير موافق", value: sums[2] },
-      { name: "محايد", value: sums[3] },
-      { name: "موافق", value: sums[4] },
-      { name: "موافق بشدة", value: sums[5] },
+      { name: "لا أوافق", value: sums[1] },
+      { name: "محايد", value: sums[2] },
+      { name: "أوافق", value: sums[3] },
     ];
   })();
 
@@ -96,7 +96,7 @@ function AnalysisPage() {
       <div>
         <h1 className="font-display text-2xl text-foreground">تحليل النتائج</h1>
         <p className="text-sm text-muted-foreground">
-          تحليل إحصائي تلقائي وفق مقياس ليكرت الخماسي، مع تفسير أكاديمي لكل محور وسؤال.
+          تحليل إحصائي تلقائي وفق مقياس ليكرت الثلاثي، مع تفسير أكاديمي لكل محور وسؤال.
         </p>
       </div>
 
@@ -116,7 +116,7 @@ function AnalysisPage() {
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                  <YAxis domain={[0, 5]} tick={{ fontSize: 10 }} />
+                  <YAxis domain={[0, 3]} tick={{ fontSize: 10 }} />
                   <Tooltip />
                   <Bar dataKey="mean" fill="#2f6a4d" radius={[6, 6, 0, 0]} />
                 </BarChart>
@@ -135,7 +135,7 @@ function AnalysisPage() {
                 <RadarChart data={radarData}>
                   <PolarGrid />
                   <PolarAngleAxis dataKey="axis" tick={{ fontSize: 10 }} />
-                  <PolarRadiusAxis domain={[0, 5]} tick={{ fontSize: 10 }} />
+                  <PolarRadiusAxis domain={[0, 3]} tick={{ fontSize: 10 }} />
                   <Radar dataKey="mean" stroke="#c79a3a" fill="#c79a3a" fillOpacity={0.5} />
                 </RadarChart>
               </ResponsiveContainer>

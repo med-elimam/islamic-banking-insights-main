@@ -5,10 +5,13 @@ import type { AxisStat, QuestionStat } from "./statistics";
 
 export type ResponseRow = {
   id: string;
+  gender: string | null;
+  age: string | null;
   education: string;
   bank: string;
   position: string;
   experience: string;
+  islamic_training: string | null;
   open_answer: string | null;
   created_at: string;
 };
@@ -68,10 +71,13 @@ export function exportResponsesToExcel(
     const base: Record<string, unknown> = {
       "رقم الاستجابة": r.id,
       التاريخ: new Date(r.created_at).toLocaleString("ar"),
+      الجنس: escapeFormula(r.gender),
+      العمر: escapeFormula(r.age),
       المؤهل: escapeFormula(r.education),
       البنك: escapeFormula(r.bank),
       الوظيفة: escapeFormula(r.position),
       الخبرة: escapeFormula(r.experience),
+      "تكوين في الصيرفة الإسلامية": escapeFormula(r.islamic_training),
       "الإجابة المفتوحة": escapeFormula(r.open_answer ?? ""),
     };
     for (const n of qNumbers) base[`س${n}`] = map.get(n) ?? "";
@@ -89,11 +95,9 @@ export function exportResponsesToExcel(
     "الانحراف المعياري": +q.std.toFixed(3),
     أعلى: q.max,
     أقل: q.min,
-    "% موافق بشدة": +q.pct[5].toFixed(2),
-    "% موافق": +q.pct[4].toFixed(2),
-    "% محايد": +q.pct[3].toFixed(2),
-    "% غير موافق": +q.pct[2].toFixed(2),
-    "% غير موافق بشدة": +q.pct[1].toFixed(2),
+    "% أوافق": +q.pct[3].toFixed(2),
+    "% محايد": +q.pct[2].toFixed(2),
+    "% لا أوافق": +q.pct[1].toFixed(2),
     التفسير: q.interpretation.label,
   }));
   XLSX.utils.book_append_sheet(wb, styleSheet(qRows), "إحصاء الأسئلة");
@@ -656,7 +660,7 @@ function buildReportHTML(params: {
         <div class="page-title-badge">تحليل إحصاءات العبارات - الجزء 2</div>
       </div>
 
-      <h3 class="section-title">إحصاءات تفصيلية للعبارات (العبارة 21 إلى 39)</h3>
+      <h3 class="section-title">إحصاءات تفصيلية للعبارات (العبارة 21 إلى 27)</h3>
       <table>
         <thead>
           <tr>
@@ -717,10 +721,14 @@ function sanitizePdfContainer(container: HTMLElement) {
       el.style.setProperty("background-color", fallbackColor, "important");
     }
 
-    if (isUnsupported(style.borderTopColor)) el.style.setProperty("border-top-color", "#d1d5db", "important");
-    if (isUnsupported(style.borderBottomColor)) el.style.setProperty("border-bottom-color", "#d1d5db", "important");
-    if (isUnsupported(style.borderLeftColor)) el.style.setProperty("border-left-color", "#d1d5db", "important");
-    if (isUnsupported(style.borderRightColor)) el.style.setProperty("border-right-color", "#d1d5db", "important");
+    if (isUnsupported(style.borderTopColor))
+      el.style.setProperty("border-top-color", "#d1d5db", "important");
+    if (isUnsupported(style.borderBottomColor))
+      el.style.setProperty("border-bottom-color", "#d1d5db", "important");
+    if (isUnsupported(style.borderLeftColor))
+      el.style.setProperty("border-left-color", "#d1d5db", "important");
+    if (isUnsupported(style.borderRightColor))
+      el.style.setProperty("border-right-color", "#d1d5db", "important");
 
     if (isUnsupported(style.fill)) {
       el.style.setProperty("fill", "#111827", "important");

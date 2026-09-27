@@ -47,7 +47,7 @@ function ThanksPage() {
               ? "تم تسجيل إجاباتكم بنجاح. مساهمتكم تمثل قيمة كبيرة في إعداد هذا البحث الأكاديمي وفي تطوير المعرفة حول واقع وتحديات التحول نحو الصيرفة الإسلامية في موريتانيا."
               : lang === "fr"
                 ? "Vos réponses ont été enregistrées avec succès. Votre contribution est d'une grande valeur pour la préparation de cette recherche académique et le développement des connaissances sur la réalité et les défis de la transition vers la finance islamique en Mauritanie."
-                : "Your responses have been successfully recorded. Your contribution is of great value in preparing this academic research and developing knowledge about the reality and challenges of transitioning to Islamic banking in Mauritanie."}
+                : "Your responses have been successfully recorded. Your contribution is of great value in preparing this academic research and developing knowledge about the reality and challenges of transitioning to Islamic banking in Mauritania."}
           </p>
           <Button asChild className="mt-6 bg-primary text-primary-foreground">
             <Link to="/">

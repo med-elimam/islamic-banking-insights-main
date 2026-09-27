@@ -6,7 +6,16 @@ import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { BANKS, EDUCATION, EXPERIENCE, LIKERT, POSITIONS } from "@/lib/survey-data";
+import {
+  AGES,
+  BANKS,
+  EDUCATION,
+  EXPERIENCE,
+  GENDERS,
+  LIKERT,
+  POSITIONS,
+  TRAINING,
+} from "@/lib/survey-data";
 import { useQuestions, type DynamicAxis } from "@/lib/use-questions";
 import { toast } from "sonner";
 import { ArrowRight, ArrowLeft, Send, Loader2 } from "lucide-react";
@@ -21,7 +30,7 @@ import {
 export const Route = createFileRoute("/survey")({
   head: () => ({
     meta: [
-      { title: "الاستبيان — تحول البنوك التقليدية إلى بنوك إسلامية" },
+      { title: "استبيان أكاديمي — تحول البنوك التقليدية إلى مصارف إسلامية" },
       {
         name: "description",
         content: "أجب عن أسئلة الاستبيان الأكاديمي حول الصيرفة الإسلامية في موريتانيا.",
@@ -32,23 +41,31 @@ export const Route = createFileRoute("/survey")({
 });
 
 type Demo = {
+  gender: string;
+  age: string;
   education: string;
   bank: string;
   position: string;
   experience: string;
+  training: string;
 };
 
 function SurveyPage() {
   const navigate = useNavigate();
   const { axes, isLoading, isError } = useQuestions({ activeOnly: true });
-  const totalSteps = 1 + axes.length + 1; // demo + axes + open
+  const totalSteps = axes.length + 2; // axes + open question + demographics
+  const openStep = axes.length;
+  const demographicsStep = totalSteps - 1;
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [demo, setDemo] = useState<Demo>({
+    gender: "",
+    age: "",
     education: "",
     bank: "",
     position: "",
     experience: "",
+    training: "",
   });
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [openAnswer, setOpenAnswer] = useState("");
@@ -67,14 +84,14 @@ function SurveyPage() {
   const DEMO_LABELS = UI_TRANSLATIONS[lang].demoLabels;
 
   function validateStep(): string | null {
-    if (step === 0) {
+    if (step === demographicsStep) {
       const missing = (Object.keys(demo) as (keyof Demo)[]).filter((k) => !demo[k]);
       if (missing.length) {
         return `${UI_TRANSLATIONS[lang].missingFields}${missing.map((k) => DEMO_LABELS[k]).join("، ")}.`;
       }
       return null;
     }
-    const axisIdx = step - 1;
+    const axisIdx = step;
     if (axisIdx < axes.length) {
       const axis = axes[axisIdx];
       const missing: number[] = [];
@@ -164,6 +181,12 @@ function SurveyPage() {
     }
 
     // Map demographics back to Arabic to comply with database constraints and keep analysis consistent
+    const cleanGender = (
+      OPTION_MAPS.gender.db[demo.gender as keyof typeof OPTION_MAPS.gender.db] || demo.gender
+    ).trim();
+    const cleanAge = (
+      OPTION_MAPS.age.db[demo.age as keyof typeof OPTION_MAPS.age.db] || demo.age
+    ).trim();
     const cleanEducation = (
       OPTION_MAPS.education.db[demo.education as keyof typeof OPTION_MAPS.education.db] ||
       demo.education
@@ -179,13 +202,20 @@ function SurveyPage() {
       OPTION_MAPS.experience.db[demo.experience as keyof typeof OPTION_MAPS.experience.db] ||
       demo.experience
     ).trim();
+    const cleanTraining = (
+      OPTION_MAPS.training.db[demo.training as keyof typeof OPTION_MAPS.training.db] ||
+      demo.training
+    ).trim();
     const cleanOpen = openAnswer.trim();
 
     if (
+      !(GENDERS as readonly string[]).includes(cleanGender) ||
+      !(AGES as readonly string[]).includes(cleanAge) ||
       !(EDUCATION as readonly string[]).includes(cleanEducation) ||
       !(BANKS as readonly string[]).includes(cleanBank) ||
       !(POSITIONS as readonly string[]).includes(cleanPosition) ||
       !(EXPERIENCE as readonly string[]).includes(cleanExperience) ||
+      !(TRAINING as readonly string[]).includes(cleanTraining) ||
       cleanOpen.length > 4000
     ) {
       toast.error(UI_TRANSLATIONS[lang].invalidData);
@@ -196,7 +226,7 @@ function SurveyPage() {
     const activeQNums = new Set(axes.flatMap((a) => a.questions.map((q) => q.number)));
     for (const qNum of activeQNums) {
       const val = answers[qNum];
-      if (val === undefined || val < 1 || val > 5 || !Number.isInteger(val)) {
+      if (val === undefined || val < 1 || val > 3 || !Number.isInteger(val)) {
         toast.error(UI_TRANSLATIONS[lang].invalidAnswers);
         return;
       }
@@ -217,10 +247,13 @@ function SurveyPage() {
       // Insert response using explicit client-side UUID (no select returning required)
       const { error: rErr } = await supabase.from("responses").insert({
         id: responseId,
+        gender: cleanGender,
+        age: cleanAge,
         education: cleanEducation,
         bank: cleanBank,
         position: cleanPosition,
         experience: cleanExperience,
+        islamic_training: cleanTraining,
         open_answer: cleanOpen || null,
         language: lang,
       });
@@ -275,7 +308,10 @@ function SurveyPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-hero pb-16" dir={lang === "ar" ? "rtl" : "ltr"}>
+    <div
+      className={`min-h-screen flex flex-col bg-hero pb-16 ${lang === "ar" ? "font-arabic" : "font-times"}`}
+      dir={lang === "ar" ? "rtl" : "ltr"}
+    >
       <header className="mx-auto flex max-w-4xl items-center justify-between px-6 py-5 w-full flex-wrap gap-3">
         <Link
           to="/"
@@ -310,6 +346,23 @@ function SurveyPage() {
           <span className="text-sm text-muted-foreground font-medium shrink-0">
             {UI_TRANSLATIONS[lang].stepOf(step + 1, totalSteps)}
           </span>
+          <div className="flex rounded-full border border-border bg-background/70 p-0.5">
+            {(["ar", "fr", "en"] as const).map((language) => (
+              <button
+                key={language}
+                type="button"
+                onClick={() => {
+                  setLang(language);
+                  if (typeof window !== "undefined") localStorage.setItem("survey_lang", language);
+                }}
+                className={`rounded-full px-2 py-1 text-[10px] font-semibold transition ${
+                  lang === language ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                }`}
+              >
+                {language.toUpperCase()}
+              </button>
+            ))}
+          </div>
         </div>
       </header>
 
@@ -319,7 +372,15 @@ function SurveyPage() {
 
       <main className="mx-auto mt-8 max-w-4xl px-6">
         <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
-          {step === 0 && (
+          {step < axes.length && (
+            <AxisStep axis={axes[step]} answers={answers} setAnswers={setAnswers} lang={lang} />
+          )}
+
+          {step === openStep && (
+            <OpenStep value={openAnswer} setValue={setOpenAnswer} lang={lang} />
+          )}
+
+          {step === demographicsStep && (
             <DemographicsStep
               demo={demo}
               setDemo={setDemo}
@@ -328,14 +389,6 @@ function SurveyPage() {
               lang={lang}
               setLang={setLang}
             />
-          )}
-
-          {step >= 1 && step <= axes.length && (
-            <AxisStep axis={axes[step - 1]} answers={answers} setAnswers={setAnswers} lang={lang} />
-          )}
-
-          {step === totalSteps - 1 && (
-            <OpenStep value={openAnswer} setValue={setOpenAnswer} lang={lang} />
           )}
 
           <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6">
@@ -376,12 +429,12 @@ function SurveyPage() {
                 {submitting ? (
                   <>
                     <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                    جارٍ الإرسال…
+                    {UI_TRANSLATIONS[lang].submitting}
                   </>
                 ) : (
                   <>
                     <Send className="ml-2 h-4 w-4" />
-                    إرسال الاستبيان
+                    {UI_TRANSLATIONS[lang].submit}
                   </>
                 )}
               </Button>
@@ -501,10 +554,13 @@ function DemographicsStep({
                   }
                   // Reset demo fields since array options will change language
                   setDemo({
+                    gender: "",
+                    age: "",
                     education: "",
                     bank: "",
                     position: "",
                     experience: "",
+                    training: "",
                   });
                 }}
                 className={
@@ -532,19 +588,23 @@ function DemographicsStep({
           autoComplete="off"
         />
       </div>
-
-
+      <Field
+        label={t.demoLabels.gender}
+        options={OPTION_MAPS.gender[lang]}
+        value={demo.gender}
+        onChange={(v) => setDemo({ ...demo, gender: v })}
+      />
+      <Field
+        label={t.demoLabels.age}
+        options={OPTION_MAPS.age[lang]}
+        value={demo.age}
+        onChange={(v) => setDemo({ ...demo, age: v })}
+      />
       <Field
         label={t.demoLabels.education}
         options={OPTION_MAPS.education[lang]}
         value={demo.education}
         onChange={(v) => setDemo({ ...demo, education: v })}
-      />
-      <Field
-        label={t.demoLabels.bank}
-        options={OPTION_MAPS.bank[lang]}
-        value={demo.bank}
-        onChange={(v) => setDemo({ ...demo, bank: v })}
       />
       <Field
         label={t.demoLabels.position}
@@ -557,6 +617,18 @@ function DemographicsStep({
         options={OPTION_MAPS.experience[lang]}
         value={demo.experience}
         onChange={(v) => setDemo({ ...demo, experience: v })}
+      />
+      <Field
+        label={t.demoLabels.bank}
+        options={OPTION_MAPS.bank[lang]}
+        value={demo.bank}
+        onChange={(v) => setDemo({ ...demo, bank: v })}
+      />
+      <Field
+        label={t.demoLabels.training}
+        options={OPTION_MAPS.training[lang]}
+        value={demo.training}
+        onChange={(v) => setDemo({ ...demo, training: v })}
       />
     </div>
   );
@@ -576,10 +648,10 @@ function AxisStep({
   const axisName = lang !== "ar" ? AXIS_TRANSLATIONS[axis.id]?.[lang] || axis.name : axis.name;
   const likertHelp =
     lang === "ar"
-      ? "أجب عن كل عبارة وفق مقياس ليكرت الخماسي (موافق بشدة … غير موافق بشدة)."
+      ? "ضع علامة واحدة أمام الخيار الذي يعكس رأيك في كل عبارة: أوافق، محايد، أو لا أوافق."
       : lang === "fr"
-        ? "Répondez à chaque affirmation selon l'échelle de Likert à 5 points (Tout à fait d'accord … Absolument pas d'accord)."
-        : "Answer each statement according to the 5-point Likert scale (Strongly Agree ... Strongly Disagree).";
+        ? "Cochez une seule réponse pour chaque affirmation : D'accord, Neutre ou Pas d'accord."
+        : "Select one response for each statement: Agree, Neutral, or Disagree.";
 
   return (
     <div className="space-y-6">
@@ -589,7 +661,7 @@ function AxisStep({
       </header>
 
       <div className="space-y-5">
-        {axis.questions.map((q, idx) => {
+        {axis.questions.map((q) => {
           const questionText =
             lang !== "ar" ? QUESTION_TRANSLATIONS[q.number]?.[lang] || q.text : q.text;
           return (
@@ -598,18 +670,18 @@ function AxisStep({
                 <span
                   className={`${lang === "ar" ? "ml-2" : "mr-2"} inline-block rounded-md bg-primary/10 px-2 py-0.5 text-xs text-primary`}
                 >
-                  {idx + 1}
+                  {q.number}
                 </span>
                 {questionText}
               </p>
               <RadioGroup
                 value={answers[q.number]?.toString() ?? ""}
                 onValueChange={(v) => setAnswers({ ...answers, [q.number]: Number(v) })}
-                className="grid grid-cols-2 gap-2 sm:grid-cols-5"
+                className="grid grid-cols-1 gap-2 sm:grid-cols-3"
               >
                 {LIKERT.map((l) => {
                   const active = answers[q.number] === l.value;
-                  const labelText = UI_TRANSLATIONS[lang].likert[l.value as 1 | 2 | 3 | 4 | 5];
+                  const labelText = UI_TRANSLATIONS[lang].likert[l.value as 1 | 2 | 3];
                   return (
                     <Label
                       key={l.value}
@@ -653,13 +725,7 @@ function OpenStep({
         maxLength={4000}
         onChange={(e) => setValue(e.target.value)}
         rows={8}
-        placeholder={
-          lang === "ar"
-            ? "اكتب مقترحاتك هنا…"
-            : lang === "fr"
-              ? "Écrivez vos suggestions ici..."
-              : "Write your suggestions here..."
-        }
+        placeholder={t.openPlaceholder}
         className="resize-y"
       />
       <p className="text-xs text-muted-foreground">{value.length} / 4000</p>

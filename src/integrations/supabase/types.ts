@@ -48,31 +48,40 @@ export type Database = {
       };
       responses: {
         Row: {
+          age: string | null;
           bank: string;
           created_at: string;
           education: string;
           experience: string;
+          gender: string | null;
           id: string;
+          islamic_training: string | null;
           language: string | null;
           open_answer: string | null;
           position: string;
         };
         Insert: {
+          age?: string | null;
           bank: string;
           created_at?: string;
           education: string;
           experience: string;
+          gender?: string | null;
           id?: string;
+          islamic_training?: string | null;
           language?: string | null;
           open_answer?: string | null;
           position: string;
         };
         Update: {
+          age?: string | null;
           bank?: string;
           created_at?: string;
           education?: string;
           experience?: string;
+          gender?: string | null;
           id?: string;
+          islamic_training?: string | null;
           language?: string | null;
           open_answer?: string | null;
           position?: string;
