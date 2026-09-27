@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -72,13 +72,14 @@ function SurveyPage() {
   const [honeypot, setHoneypot] = useState("");
   const [startTime] = useState(() => Date.now());
   const submissionIdRef = useRef<string | null>(null);
-  const [lang, setLang] = useState<Language>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("survey_lang");
-      if (saved === "ar" || saved === "fr" || saved === "en") return saved as Language;
-    }
-    return "ar";
-  });
+  const [lang, setLang] = useState<Language>("ar");
+
+  // Keep the server and the first client render identical, then restore the
+  // visitor's preferred language after hydration.
+  useEffect(() => {
+    const saved = localStorage.getItem("survey_lang");
+    if (saved === "ar" || saved === "fr" || saved === "en") setLang(saved);
+  }, []);
 
   const progress = useMemo(() => ((step + 1) / totalSteps) * 100, [step, totalSteps]);
 
