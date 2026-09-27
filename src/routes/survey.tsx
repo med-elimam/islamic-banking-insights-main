@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -71,6 +71,7 @@ function SurveyPage() {
   const [openAnswer, setOpenAnswer] = useState("");
   const [honeypot, setHoneypot] = useState("");
   const [startTime] = useState(() => Date.now());
+  const submissionIdRef = useRef<string | null>(null);
   const [lang, setLang] = useState<Language>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("survey_lang");
@@ -235,51 +236,44 @@ function SurveyPage() {
     setSubmitting(true);
     try {
       // Generate client-side UUID (fallback if crypto.randomUUID is absent)
-      const responseId =
-        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-          ? crypto.randomUUID()
-          : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-              const r = (Math.random() * 16) | 0;
-              const v = c === "x" ? r : (r & 0x3) | 0x8;
-              return v.toString(16);
-            });
+      if (!submissionIdRef.current) {
+        submissionIdRef.current =
+          typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+            ? crypto.randomUUID()
+            : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+                const r = (Math.random() * 16) | 0;
+                const v = c === "x" ? r : (r & 0x3) | 0x8;
+                return v.toString(16);
+              });
+      }
 
-      // Insert response using explicit client-side UUID (no select returning required)
-      const { error: rErr } = await supabase.from("responses").insert({
-        id: responseId,
-        gender: cleanGender,
-        age: cleanAge,
-        education: cleanEducation,
-        bank: cleanBank,
-        position: cleanPosition,
-        experience: cleanExperience,
-        islamic_training: cleanTraining,
-        open_answer: cleanOpen || null,
-        language: lang,
-      });
-      if (rErr) throw rErr;
-
-      // Insert answers referencing the generated responseId
+      // Submit the response and all answers in one database transaction. If any
+      // answer fails validation, PostgreSQL rolls the entire submission back.
       const rows = axes.flatMap((axis) =>
-        axis.questions.map((q) => {
-          const v = answers[q.number];
-          const t = LIKERT.find((l) => l.value === v)?.text ?? "";
-          return {
-            response_id: responseId,
-            question_number: q.number,
-            axis_name: axis.name,
-            answer_text: t,
-            answer_value: v,
-          };
-        }),
+        axis.questions.map((q) => ({
+          question_number: q.number,
+          answer_value: answers[q.number],
+        })),
       );
-      const { error: aErr } = await supabase.from("answers").insert(rows);
-      if (aErr) throw aErr;
+      const { error: submitError } = await supabase.rpc("submit_survey_response", {
+        p_response_id: submissionIdRef.current,
+        p_gender: cleanGender,
+        p_age: cleanAge,
+        p_education: cleanEducation,
+        p_bank: cleanBank,
+        p_position: cleanPosition,
+        p_experience: cleanExperience,
+        p_islamic_training: cleanTraining,
+        p_open_answer: cleanOpen || null,
+        p_language: lang,
+        p_answers: rows,
+      });
+      if (submitError) throw submitError;
 
       if (typeof window !== "undefined") localStorage.setItem("survey_submitted", "1");
       navigate({ to: "/thanks" });
     } catch (e) {
-      console.error("[Survey Submission Error]");
+      console.error("[Survey Submission Error]", e instanceof Error ? e.message : e);
       toast.error(UI_TRANSLATIONS[lang].submitError);
     } finally {
       setSubmitting(false);

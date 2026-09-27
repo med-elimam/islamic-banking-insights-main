@@ -21,11 +21,13 @@ import {
 import { Loader2, Plus, Save, Trash2, Pencil, X } from "lucide-react";
 import { toast } from "sonner";
 
-// survey_questions is not yet in the generated Supabase types — use a typed shim
-const surveyQuestionsTable = () =>
-  (supabase as unknown as { from: (t: string) => ReturnType<typeof supabase.from> }).from(
-    "survey_questions",
-  );
+const surveyQuestionsTable = () => supabase.from("survey_questions");
+
+function ensureMutationAffectedRow(data: { id: string } | null, operation: string) {
+  if (!data) {
+    throw new Error(`لم تنفذ قاعدة البيانات عملية ${operation}. تحقق من صلاحيات المدير.`);
+  }
+}
 
 export function QuestionsManager() {
   const qc = useQueryClient();
@@ -71,17 +73,22 @@ export function QuestionsManager() {
     const nextNumber = all.length ? Math.max(...all.map((q) => q.number)) + 1 : 1;
     const sameAxis = all.filter((q) => q.axis_id === newAxisId.trim());
     const nextOrder = sameAxis.length ? Math.max(...sameAxis.map((q) => q.order_index)) + 1 : 1;
-    const { error } = await surveyQuestionsTable().insert({
-      number: nextNumber,
-      axis_id: newAxisId.trim(),
-      axis_name: newAxisName.trim(),
-      text: newText.trim(),
-      order_index: nextOrder,
-      active: true,
-    });
-    if (error) {
-      toast.error("تعذرت الإضافة: " + error.message);
-      return;
+    const { data: inserted, error } = await surveyQuestionsTable()
+      .insert({
+        number: nextNumber,
+        axis_id: newAxisId.trim(),
+        axis_name: newAxisName.trim(),
+        text: newText.trim(),
+        order_index: nextOrder,
+        active: true,
+      })
+      .select("id")
+      .single();
+    if (error) return toast.error("تعذرت الإضافة: " + error.message);
+    try {
+      ensureMutationAffectedRow(inserted, "الإضافة");
+    } catch (mutationError) {
+      return toast.error(mutationError instanceof Error ? mutationError.message : "تعذرت الإضافة.");
     }
     toast.success("تمت إضافة السؤال.");
     setNewText("");
@@ -187,25 +194,52 @@ function QuestionRow({ q, onChanged }: { q: DbQuestion; onChanged: () => Promise
 
   async function save() {
     setSaving(true);
-    const { error } = await surveyQuestionsTable()
+    const { data, error } = await surveyQuestionsTable()
       .update({ text: text.trim(), axis_name: axisName.trim(), order_index: orderIndex })
-      .eq("id", q.id);
+      .eq("id", q.id)
+      .select("id")
+      .maybeSingle();
     setSaving(false);
     if (error) return toast.error("تعذر الحفظ: " + error.message);
+    try {
+      ensureMutationAffectedRow(data, "الحفظ");
+    } catch (mutationError) {
+      return toast.error(mutationError instanceof Error ? mutationError.message : "تعذر الحفظ.");
+    }
     toast.success("تم الحفظ.");
     setEditing(false);
     await onChanged();
   }
 
   async function toggleActive(v: boolean) {
-    const { error } = await surveyQuestionsTable().update({ active: v }).eq("id", q.id);
+    const { data, error } = await surveyQuestionsTable()
+      .update({ active: v })
+      .eq("id", q.id)
+      .select("id")
+      .maybeSingle();
     if (error) return toast.error(error.message);
+    try {
+      ensureMutationAffectedRow(data, "تغيير الحالة");
+    } catch (mutationError) {
+      return toast.error(
+        mutationError instanceof Error ? mutationError.message : "تعذر تغيير الحالة.",
+      );
+    }
     await onChanged();
   }
 
   async function remove() {
-    const { error } = await surveyQuestionsTable().delete().eq("id", q.id);
+    const { data, error } = await surveyQuestionsTable()
+      .delete()
+      .eq("id", q.id)
+      .select("id")
+      .maybeSingle();
     if (error) return toast.error("تعذر الحذف: " + error.message);
+    try {
+      ensureMutationAffectedRow(data, "الحذف");
+    } catch (mutationError) {
+      return toast.error(mutationError instanceof Error ? mutationError.message : "تعذر الحذف.");
+    }
     toast.success("تم الحذف.");
     await onChanged();
   }

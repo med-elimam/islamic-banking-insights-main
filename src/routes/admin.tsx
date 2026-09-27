@@ -106,16 +106,22 @@ function AdminDashboard() {
 
   const handleDeleteResponse = async (id: string) => {
     try {
-      const { error } = await supabase.from("responses").delete().eq("id", id);
+      const { data, error } = await supabase
+        .from("responses")
+        .delete()
+        .eq("id", id)
+        .select("id")
+        .maybeSingle();
 
       if (error) {
         throw error;
       }
+      if (!data) {
+        throw new Error("لم تحذف قاعدة البيانات أي سجل. تحقق من صلاحية المدير وسياسة الحذف.");
+      }
 
       toast.success("تم حذف الاستجابة بنجاح.");
-      // Invalidate queries to trigger refetch
-      responsesQ.refetch();
-      answersQ.refetch();
+      await Promise.all([responsesQ.refetch(), answersQ.refetch()]);
     } catch (err: unknown) {
       console.error("Failed to delete response:", err);
       const message = err instanceof Error ? err.message : "خطأ غير معروف";
@@ -149,7 +155,7 @@ function AdminDashboard() {
     });
   }, [responsesQ.data, bank, pos, exp, q]);
 
-  const answers = answersQ.data ?? [];
+  const answers = useMemo(() => answersQ.data ?? [], [answersQ.data]);
   const filteredIds = new Set(filtered.map((r) => r.id));
   const filteredAnswers = answers.filter((a) => filteredIds.has(a.response_id));
 

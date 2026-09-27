@@ -19,8 +19,7 @@ export type DynamicAxis = {
 };
 
 export async function fetchQuestions(opts: { activeOnly?: boolean } = {}): Promise<DbQuestion[]> {
-  // survey_questions is not in the generated types yet; cast through unknown for type safety
-  let q = (supabase as unknown as { from: (table: string) => ReturnType<typeof supabase.from> })
+  let q = supabase
     .from("survey_questions")
     .select("*")
     .order("axis_id", { ascending: true })
@@ -28,7 +27,7 @@ export async function fetchQuestions(opts: { activeOnly?: boolean } = {}): Promi
   if (opts.activeOnly) q = q.eq("active", true);
   const { data, error } = await q;
   if (error) throw error;
-  return (data ?? []) as unknown as DbQuestion[];
+  return (data ?? []) as DbQuestion[];
 }
 
 export function buildAxes(questions: DbQuestion[]): DynamicAxis[] {

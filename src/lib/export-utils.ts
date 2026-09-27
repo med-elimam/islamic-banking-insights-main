@@ -1,4 +1,4 @@
-import * as XLSX from "xlsx";
+import { strToU8, zipSync } from "fflate";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import type { AxisStat, QuestionStat } from "./statistics";
@@ -16,21 +16,13 @@ export type ResponseRow = {
   created_at: string;
 };
 
-function autoSizeCols(rows: Record<string, unknown>[]): { wch: number }[] {
+function autoSizeCols(rows: Record<string, unknown>[]): number[] {
   if (!rows.length) return [];
   const keys = Object.keys(rows[0]);
   return keys.map((k) => {
     const max = Math.max(k.length, ...rows.map((r) => String(r[k] ?? "").length));
-    return { wch: Math.min(Math.max(max + 2, 10), 60) };
+    return Math.min(Math.max(max + 2, 10), 60);
   });
-}
-
-function styleSheet(rows: Record<string, unknown>[]) {
-  const ws = XLSX.utils.json_to_sheet(rows);
-  ws["!cols"] = autoSizeCols(rows);
-  // Excel sheet view: right-to-left for Arabic
-  (ws as Record<string, unknown>)["!views"] = [{ RTL: true }];
-  return ws;
 }
 
 function escapeFormula(val: unknown): unknown {
@@ -40,13 +32,147 @@ function escapeFormula(val: unknown): unknown {
   return val;
 }
 
+function escapeXml(value: unknown): string {
+  const xmlSafeText = Array.from(String(value ?? ""))
+    .filter((character) => {
+      const code = character.charCodeAt(0);
+      return code === 9 || code === 10 || code === 13 || code >= 32;
+    })
+    .join("");
+  return xmlSafeText
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+function excelColumn(index: number): string {
+  let value = index + 1;
+  let result = "";
+  while (value > 0) {
+    value -= 1;
+    result = String.fromCharCode(65 + (value % 26)) + result;
+    value = Math.floor(value / 26);
+  }
+  return result;
+}
+
+function worksheetXml(rows: Record<string, unknown>[]): string {
+  const keys = rows.length ? Object.keys(rows[0]) : [];
+  const widths = autoSizeCols(rows);
+  const cols = widths
+    .map(
+      (width, index) =>
+        `<col min="${index + 1}" max="${index + 1}" width="${width}" customWidth="1"/>`,
+    )
+    .join("");
+  const allRows = keys.length ? [Object.fromEntries(keys.map((key) => [key, key])), ...rows] : [];
+  const sheetRows = allRows
+    .map((row, rowIndex) => {
+      const cells = keys
+        .map((key, columnIndex) => {
+          const ref = `${excelColumn(columnIndex)}${rowIndex + 1}`;
+          const value = row[key];
+          if (rowIndex > 0 && typeof value === "number" && Number.isFinite(value)) {
+            return `<c r="${ref}" t="n"><v>${value}</v></c>`;
+          }
+          const style = rowIndex === 0 ? ' s="1"' : "";
+          return `<c r="${ref}" t="inlineStr"${style}><is><t xml:space="preserve">${escapeXml(value)}</t></is></c>`;
+        })
+        .join("");
+      return `<row r="${rowIndex + 1}">${cells}</row>`;
+    })
+    .join("");
+  const dimension =
+    keys.length && allRows.length ? `A1:${excelColumn(keys.length - 1)}${allRows.length}` : "A1";
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  <dimension ref="${dimension}"/>
+  <sheetViews><sheetView workbookViewId="0" rightToLeft="1"/></sheetViews>
+  <cols>${cols}</cols>
+  <sheetData>${sheetRows}</sheetData>
+</worksheet>`;
+}
+
+function downloadWorkbook(sheets: { name: string; rows: Record<string, unknown>[] }[]) {
+  const workbookSheets = sheets
+    .map(
+      (sheet, index) =>
+        `<sheet name="${escapeXml(sheet.name)}" sheetId="${index + 1}" r:id="rId${index + 1}"/>`,
+    )
+    .join("");
+  const workbookRels = sheets
+    .map(
+      (_sheet, index) =>
+        `<Relationship Id="rId${index + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${index + 1}.xml"/>`,
+    )
+    .join("");
+  const styleRelId = `rId${sheets.length + 1}`;
+  const contentOverrides = sheets
+    .map(
+      (_sheet, index) =>
+        `<Override PartName="/xl/worksheets/sheet${index + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`,
+    )
+    .join("");
+  const files: Record<string, Uint8Array> = {
+    "[Content_Types].xml": strToU8(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+  <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+  ${contentOverrides}
+</Types>`),
+    "_rels/.rels": strToU8(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>`),
+    "xl/workbook.xml": strToU8(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <sheets>${workbookSheets}</sheets>
+</workbook>`),
+    "xl/_rels/workbook.xml.rels": strToU8(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  ${workbookRels}
+  <Relationship Id="${styleRelId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`),
+    "xl/styles.xml": strToU8(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  <fonts count="2"><font/><font><b/></font></fonts>
+  <fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>
+  <borders count="1"><border/></borders>
+  <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+  <cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs>
+</styleSheet>`),
+  };
+  sheets.forEach((sheet, index) => {
+    files[`xl/worksheets/sheet${index + 1}.xml`] = strToU8(worksheetXml(sheet.rows));
+  });
+  const zipped = zipSync(files, { level: 6 });
+  const bytes = zipped.buffer.slice(
+    zipped.byteOffset,
+    zipped.byteOffset + zipped.byteLength,
+  ) as ArrayBuffer;
+  const url = URL.createObjectURL(
+    new Blob([bytes], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }),
+  );
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `survey-results-${new Date().toISOString().slice(0, 10)}.xlsx`;
+  anchor.click();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 export function exportResponsesToExcel(
   responses: ResponseRow[],
   answersByResponse: Map<string, { question_number: number; answer_value: number }[]>,
   qStats: QuestionStat[],
   axisStats: AxisStat[],
 ) {
-  const wb = XLSX.utils.book_new();
+  const sheets: { name: string; rows: Record<string, unknown>[] }[] = [];
 
   // Summary sheet
   const summaryRows = [
@@ -61,7 +187,7 @@ export function exportResponsesToExcel(
         : 0,
     },
   ];
-  XLSX.utils.book_append_sheet(wb, styleSheet(summaryRows), "ملخص");
+  sheets.push({ name: "ملخص", rows: summaryRows });
 
   // Responses sheet with answers as columns
   const qNumbers = qStats.map((q) => q.number);
@@ -83,7 +209,7 @@ export function exportResponsesToExcel(
     for (const n of qNumbers) base[`س${n}`] = map.get(n) ?? "";
     return base;
   });
-  XLSX.utils.book_append_sheet(wb, styleSheet(responseRows), "الاستجابات");
+  sheets.push({ name: "الاستجابات", rows: responseRows });
 
   // Question stats
   const qRows = qStats.map((q) => ({
@@ -100,7 +226,7 @@ export function exportResponsesToExcel(
     "% لا أوافق": +q.pct[1].toFixed(2),
     التفسير: q.interpretation.label,
   }));
-  XLSX.utils.book_append_sheet(wb, styleSheet(qRows), "إحصاء الأسئلة");
+  sheets.push({ name: "إحصاء الأسئلة", rows: qRows });
 
   // Axis stats
   const axisRows = axisStats.map((a, i) => ({
@@ -111,7 +237,7 @@ export function exportResponsesToExcel(
     "الانحراف المعياري": +a.std.toFixed(3),
     التفسير: a.interpretation.label,
   }));
-  XLSX.utils.book_append_sheet(wb, styleSheet(axisRows), "إحصاء المحاور");
+  sheets.push({ name: "إحصاء المحاور", rows: axisRows });
 
   // Open answers sheet
   const openRows = responses
@@ -123,10 +249,10 @@ export function exportResponsesToExcel(
       "الإجابة المفتوحة": escapeFormula(r.open_answer),
     }));
   if (openRows.length) {
-    XLSX.utils.book_append_sheet(wb, styleSheet(openRows), "إجابات مفتوحة");
+    sheets.push({ name: "إجابات مفتوحة", rows: openRows });
   }
 
-  XLSX.writeFile(wb, `survey-results-${new Date().toISOString().slice(0, 10)}.xlsx`);
+  downloadWorkbook(sheets);
 }
 
 function escapeHtml(s: string) {
