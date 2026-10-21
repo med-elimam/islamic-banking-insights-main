@@ -14,7 +14,7 @@ export const EDUCATION = [
   "تكوين مهني",
   "أخرى",
 ] as const;
-export const BANKS = ["BMCI", "BCI", "BNM", "SGM", "BPM", "بنك آخر"] as const;
+export const BANKS = ["BMCI", "BCI", "BNM", "BII", "ABM", "بنك آخر"] as const;
 export const POSITIONS = [
   "مدير",
   "رئيس مصلحة",
