@@ -9,21 +9,7 @@ WHERE bank IN ('BPM', 'SGM', 'Société Générale Mauritanie');
 ALTER TABLE public.responses ADD CONSTRAINT chk_responses_bank
   CHECK (bank IN ('BMCI', 'BCI', 'BNM', 'BII', 'ABM', 'بنك آخر'));
 
-DROP POLICY IF EXISTS "Anyone can submit responses" ON public.responses;
-CREATE POLICY "Anyone can submit responses"
-  ON public.responses FOR INSERT
-  TO anon, authenticated
-  WITH CHECK (
-    gender IN ('ذكر', 'أنثى')
-    AND age IN ('أقل من 30 سنة', 'من 30 إلى 40 سنة', 'من 41 إلى 50 سنة')
-    AND length(education) BETWEEN 1 AND 64
-    AND bank IN ('BMCI', 'BCI', 'BNM', 'BII', 'ABM', 'بنك آخر')
-    AND position IN ('مدير', 'رئيس مصلحة', 'موظف عمليات مصرفية', 'موظف تمويل أو ائتمان', 'موظف إداري', 'موظف خدمة أخرى')
-    AND length(experience) BETWEEN 1 AND 64
-    AND islamic_training IN ('نعم', 'لا')
-    AND (open_answer IS NULL OR length(open_answer) <= 4000)
-    AND language IN ('ar', 'fr', 'en')
-  );
+-- Keep existing table privileges and RLS policies unchanged; submissions use the RPC.
 
 CREATE OR REPLACE FUNCTION public.submit_survey_response(
   p_response_id uuid,
