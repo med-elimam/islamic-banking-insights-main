@@ -6,6 +6,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { computeStats, groupCounts, type AnswerRow } from "@/lib/statistics";
 import { useQuestions } from "@/lib/use-questions";
 import { QuestionsManager } from "@/components/questions-manager";
+import { SurveyOptionsManager } from "@/components/survey-options-manager";
+import { SurveyContentManager } from "@/components/survey-content-manager";
+import { useSurveyConfig } from "@/lib/use-survey-config";
+import { optionLabel, optionsByGroup, type SurveyOption } from "@/lib/survey-config";
 import { exportResponsesToExcel, exportAnalysisToPDF, type ResponseRow } from "@/lib/export-utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +30,6 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BANKS, POSITIONS, EXPERIENCE } from "@/lib/survey-data";
 import {
   FileSpreadsheet,
   FileText,
@@ -35,6 +38,8 @@ import {
   ListChecks,
   BarChart3,
   Settings2,
+  SlidersHorizontal,
+  PanelsTopLeft,
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -87,6 +92,16 @@ function AdminDashboard() {
       return (data ?? []) as ResponseRow[];
     },
   });
+  const config = useSurveyConfig(true);
+  const groupedOptions = optionsByGroup(config.data?.options ?? [], false);
+  const displayLabel = (value: string | null | undefined) => {
+    if (!value) return "—";
+    return optionLabel(
+      (config.data?.options ?? []).find((o) => o.value === value) ??
+        ({ label_ar: value, label_fr: value, label_en: value } as SurveyOption),
+      "ar",
+    );
+  };
   const answersQ = useQuery({
     queryKey: ["admin", "answers"],
     queryFn: async () => {
@@ -176,7 +191,7 @@ function AdminDashboard() {
     return m;
   }, [answers]);
 
-  if (responsesQ.isLoading || answersQ.isLoading || qLoading) {
+  if (responsesQ.isLoading || answersQ.isLoading || qLoading || config.isLoading) {
     return (
       <div className="grid place-items-center py-20">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -185,10 +200,21 @@ function AdminDashboard() {
   }
 
   const total = filtered.length;
-  const byBank = groupCounts(filtered, "bank");
-
-  const byPosition = groupCounts(filtered, "position");
-  const byExperience = groupCounts(filtered, "experience");
+  const labelCounts = (rows: { name: string; value: number }[]) =>
+    rows.map((row) => ({ ...row, name: displayLabel(row.name) }));
+  const byBank = labelCounts(groupCounts(filtered, "bank"));
+  const byPosition = labelCounts(groupCounts(filtered, "position"));
+  const byExperience = labelCounts(groupCounts(filtered, "experience"));
+  const exportRows = filtered.map((row) => ({
+    ...row,
+    gender: displayLabel(row.gender),
+    age: displayLabel(row.age),
+    education: displayLabel(row.education),
+    bank: displayLabel(row.bank),
+    position: displayLabel(row.position),
+    experience: displayLabel(row.experience),
+    islamic_training: displayLabel(row.islamic_training),
+  }));
 
   return (
     <div className="space-y-8">
@@ -202,7 +228,7 @@ function AdminDashboard() {
         <div className="flex flex-wrap gap-2">
           <Button
             variant="outline"
-            onClick={() => exportResponsesToExcel(filtered, answersByResponse, qStats, axisStats)}
+            onClick={() => exportResponsesToExcel(exportRows, answersByResponse, qStats, axisStats)}
           >
             <FileSpreadsheet className="ml-2 h-4 w-4" /> تصدير Excel
           </Button>
@@ -211,7 +237,7 @@ function AdminDashboard() {
               setExportingPDF(true);
               try {
                 await exportAnalysisToPDF({
-                  responses: filtered,
+                  responses: exportRows,
                   qStats,
                   axisStats,
                   byBank,
@@ -262,6 +288,14 @@ function AdminDashboard() {
           <TabsTrigger value="questions" className="gap-2">
             <Settings2 className="h-4 w-4" />
             إدارة الأسئلة
+          </TabsTrigger>
+          <TabsTrigger value="options" className="gap-2">
+            <SlidersHorizontal className="h-4 w-4" />
+            الخيارات العامة
+          </TabsTrigger>
+          <TabsTrigger value="content" className="gap-2">
+            <PanelsTopLeft className="h-4 w-4" />
+            المحتوى والنشر
           </TabsTrigger>
         </TabsList>
 
@@ -372,20 +406,20 @@ function AdminDashboard() {
                 label="البنك"
                 value={bank}
                 onChange={setBank}
-                options={BANKS as readonly string[]}
+                options={groupedOptions.get("bank") ?? []}
               />
               <FilterSelect
                 label="الوظيفة"
                 value={pos}
                 onChange={setPos}
-                options={POSITIONS as readonly string[]}
+                options={groupedOptions.get("position") ?? []}
               />
 
               <FilterSelect
                 label="الخبرة"
                 value={exp}
                 onChange={setExp}
-                options={EXPERIENCE as readonly string[]}
+                options={groupedOptions.get("experience") ?? []}
               />
               <div>
                 <label className="mb-1 block text-xs text-muted-foreground">بحث نصي</label>
@@ -421,13 +455,13 @@ function AdminDashboard() {
                         <TableCell className="whitespace-nowrap text-xs">
                           {new Date(r.created_at).toLocaleString("ar")}
                         </TableCell>
-                        <TableCell>{r.gender ?? "—"}</TableCell>
-                        <TableCell>{r.age ?? "—"}</TableCell>
-                        <TableCell>{r.education}</TableCell>
-                        <TableCell>{r.bank}</TableCell>
-                        <TableCell>{r.position}</TableCell>
-                        <TableCell>{r.experience}</TableCell>
-                        <TableCell>{r.islamic_training ?? "—"}</TableCell>
+                        <TableCell>{displayLabel(r.gender)}</TableCell>
+                        <TableCell>{displayLabel(r.age)}</TableCell>
+                        <TableCell>{displayLabel(r.education)}</TableCell>
+                        <TableCell>{displayLabel(r.bank)}</TableCell>
+                        <TableCell>{displayLabel(r.position)}</TableCell>
+                        <TableCell>{displayLabel(r.experience)}</TableCell>
+                        <TableCell>{displayLabel(r.islamic_training)}</TableCell>
                         <TableCell className="max-w-xs truncate" title={r.open_answer ?? ""}>
                           {r.open_answer ?? "—"}
                         </TableCell>
@@ -484,6 +518,12 @@ function AdminDashboard() {
         <TabsContent value="questions" className="space-y-6">
           <QuestionsManager />
         </TabsContent>
+        <TabsContent value="options">
+          <SurveyOptionsManager />
+        </TabsContent>
+        <TabsContent value="content">
+          <SurveyContentManager />
+        </TabsContent>
       </Tabs>
     </div>
   );
@@ -531,7 +571,7 @@ function FilterSelect({
   label: string;
   value: string;
   onChange: (v: string) => void;
-  options: readonly string[];
+  options: SurveyOption[];
 }) {
   return (
     <div>
@@ -543,8 +583,8 @@ function FilterSelect({
         <SelectContent>
           <SelectItem value="all">الكل</SelectItem>
           {options.map((o) => (
-            <SelectItem key={o} value={o}>
-              {o}
+            <SelectItem key={o.id} value={o.value}>
+              {o.label_ar}
             </SelectItem>
           ))}
         </SelectContent>

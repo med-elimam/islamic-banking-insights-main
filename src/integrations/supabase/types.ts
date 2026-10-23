@@ -98,6 +98,8 @@ export type Database = {
           number: number;
           order_index: number;
           text: string;
+          text_en: string;
+          text_fr: string;
           updated_at: string;
         };
         Insert: {
@@ -109,6 +111,8 @@ export type Database = {
           number: number;
           order_index?: number;
           text: string;
+          text_en: string;
+          text_fr: string;
           updated_at?: string;
         };
         Update: {
@@ -120,6 +124,157 @@ export type Database = {
           number?: number;
           order_index?: number;
           text?: string;
+          text_en?: string;
+          text_fr?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      survey_axes: {
+        Row: {
+          active: boolean;
+          created_at: string;
+          id: string;
+          name_ar: string;
+          name_en: string;
+          name_fr: string;
+          order_index: number;
+          updated_at: string;
+        };
+        Insert: {
+          active?: boolean;
+          created_at?: string;
+          id: string;
+          name_ar: string;
+          name_en: string;
+          name_fr: string;
+          order_index?: number;
+          updated_at?: string;
+        };
+        Update: {
+          active?: boolean;
+          id?: string;
+          name_ar?: string;
+          name_en?: string;
+          name_fr?: string;
+          order_index?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      survey_content: {
+        Row: {
+          category: string;
+          key: string;
+          label: string;
+          multiline: boolean;
+          order_index: number;
+          updated_at: string;
+          value_ar: string;
+          value_en: string;
+          value_fr: string;
+        };
+        Insert: {
+          category: string;
+          key: string;
+          label: string;
+          multiline?: boolean;
+          order_index?: number;
+          updated_at?: string;
+          value_ar: string;
+          value_en: string;
+          value_fr: string;
+        };
+        Update: {
+          category?: string;
+          key?: string;
+          label?: string;
+          multiline?: boolean;
+          order_index?: number;
+          updated_at?: string;
+          value_ar?: string;
+          value_en?: string;
+          value_fr?: string;
+        };
+        Relationships: [];
+      };
+      survey_options: {
+        Row: {
+          active: boolean;
+          created_at: string;
+          group_key: string;
+          id: string;
+          label_ar: string;
+          label_en: string;
+          label_fr: string;
+          order_index: number;
+          updated_at: string;
+          value: string;
+        };
+        Insert: {
+          active?: boolean;
+          created_at?: string;
+          group_key: string;
+          id?: string;
+          label_ar: string;
+          label_en: string;
+          label_fr: string;
+          order_index?: number;
+          updated_at?: string;
+          value: string;
+        };
+        Update: {
+          active?: boolean;
+          group_key?: string;
+          label_ar?: string;
+          label_en?: string;
+          label_fr?: string;
+          order_index?: number;
+          updated_at?: string;
+          value?: string;
+        };
+        Relationships: [];
+      };
+      survey_settings: {
+        Row: {
+          accent_color: string;
+          closed_message_ar: string;
+          closed_message_en: string;
+          closed_message_fr: string;
+          id: boolean;
+          logo_url: string;
+          pdf_url_ar: string;
+          pdf_url_en: string;
+          pdf_url_fr: string;
+          primary_color: string;
+          survey_open: boolean;
+          updated_at: string;
+        };
+        Insert: {
+          accent_color?: string;
+          closed_message_ar?: string;
+          closed_message_en?: string;
+          closed_message_fr?: string;
+          id?: boolean;
+          logo_url?: string;
+          pdf_url_ar?: string;
+          pdf_url_en?: string;
+          pdf_url_fr?: string;
+          primary_color?: string;
+          survey_open?: boolean;
+          updated_at?: string;
+        };
+        Update: {
+          accent_color?: string;
+          closed_message_ar?: string;
+          closed_message_en?: string;
+          closed_message_fr?: string;
+          logo_url?: string;
+          pdf_url_ar?: string;
+          pdf_url_en?: string;
+          pdf_url_fr?: string;
+          primary_color?: string;
+          survey_open?: boolean;
           updated_at?: string;
         };
         Relationships: [];

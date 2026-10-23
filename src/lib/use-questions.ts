@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { AXES } from "@/lib/survey-data";
+import type { Language } from "./survey-translations";
 
 export type DbQuestion = {
   id: string;
@@ -8,73 +8,85 @@ export type DbQuestion = {
   axis_id: string;
   axis_name: string;
   text: string;
+  text_fr: string;
+  text_en: string;
   order_index: number;
   active: boolean;
 };
 
-export type DynamicAxis = {
+export type DbAxis = {
   id: string;
-  name: string;
-  questions: { number: number; text: string }[];
+  name_ar: string;
+  name_fr: string;
+  name_en: string;
+  order_index: number;
+  active: boolean;
 };
 
-export async function fetchQuestions(opts: { activeOnly?: boolean } = {}): Promise<DbQuestion[]> {
-  let q = supabase
-    .from("survey_questions")
-    .select("*")
-    .order("axis_id", { ascending: true })
-    .order("order_index", { ascending: true });
-  if (opts.activeOnly) q = q.eq("active", true);
-  const { data, error } = await q;
-  if (error) throw error;
-  return (data ?? []) as DbQuestion[];
-}
+export type DynamicQuestion = DbQuestion & { display_text: string };
+export type DynamicAxis = DbAxis & { name: string; questions: DynamicQuestion[] };
 
-export function buildAxes(questions: DbQuestion[]): DynamicAxis[] {
-  const map = new Map<string, DynamicAxis>();
-  const sorted = [...questions].sort(
-    (a, b) => a.axis_id.localeCompare(b.axis_id) || a.order_index - b.order_index,
-  );
-  for (const q of sorted) {
-    if (!map.has(q.axis_id))
-      map.set(q.axis_id, { id: q.axis_id, name: q.axis_name, questions: [] });
-    map.get(q.axis_id)!.questions.push({ number: q.number, text: q.text });
+export async function fetchQuestionnaire(activeOnly = false) {
+  let questionsQuery = supabase.from("survey_questions").select("*").order("order_index");
+  let axesQuery = supabase.from("survey_axes").select("*").order("order_index");
+  if (activeOnly) {
+    questionsQuery = questionsQuery.eq("active", true);
+    axesQuery = axesQuery.eq("active", true);
   }
-  return Array.from(map.values());
+  const [questionsResult, axesResult] = await Promise.all([questionsQuery, axesQuery]);
+  if (questionsResult.error) throw questionsResult.error;
+  if (axesResult.error) throw axesResult.error;
+  return {
+    questions: (questionsResult.data ?? []) as DbQuestion[],
+    axes: (axesResult.data ?? []) as DbAxis[],
+  };
 }
 
-export function useQuestions(opts: { activeOnly?: boolean } = {}) {
+export function buildAxes(questions: DbQuestion[], axes: DbAxis[], lang: Language): DynamicAxis[] {
+  return [...axes]
+    .sort((a, b) => a.order_index - b.order_index)
+    .map((axis) => ({
+      ...axis,
+      name: axis[`name_${lang}`] || axis.name_ar,
+      questions: questions
+        .filter((question) => question.axis_id === axis.id)
+        .sort((a, b) => a.order_index - b.order_index)
+        .map((question) => ({
+          ...question,
+          display_text:
+            lang === "fr"
+              ? question.text_fr || question.text
+              : lang === "en"
+                ? question.text_en || question.text
+                : question.text,
+        })),
+    }));
+}
+
+export function useQuestions(opts: { activeOnly?: boolean; lang?: Language } = {}) {
+  const activeOnly = opts.activeOnly ?? false;
+  const lang = opts.lang ?? "ar";
   const query = useQuery({
-    queryKey: ["survey_questions", opts.activeOnly ? "active" : "all"],
-    queryFn: () => fetchQuestions(opts),
-    enabled: !opts.activeOnly,
+    queryKey: ["survey-questionnaire", activeOnly ? "active" : "all"],
+    queryFn: () => fetchQuestionnaire(activeOnly),
   });
-  const canonicalQuestions: DbQuestion[] = AXES.flatMap((axis) =>
-    axis.questions.map((question, index) => ({
-      id: `canonical-${question.number}`,
-      number: question.number,
-      axis_id: axis.id,
-      axis_name: axis.name,
-      text: question.text,
-      order_index: index + 1,
-      active: true,
-    })),
+  const questions = query.data?.questions ?? [];
+  const dbAxes = query.data?.axes ?? [];
+  const axes = buildAxes(questions, dbAxes, lang).filter(
+    (axis) => !activeOnly || axis.questions.length > 0,
   );
-  // The public questionnaire is versioned in code so it always matches the
-  // approved Arabic, French and English paper editions. The database remains
-  // available to the admin question manager for archival/editing purposes.
-  const all = opts.activeOnly ? canonicalQuestions : (query.data ?? []);
   return {
     ...query,
-    isLoading: opts.activeOnly ? false : query.isLoading,
-    isError: opts.activeOnly ? false : query.isError,
-    questions: all,
-    axes: buildAxes(all),
-    allQuestions: all.map((q) => ({
-      number: q.number,
-      text: q.text,
-      axis_id: q.axis_id,
-      axis_name: q.axis_name,
-    })),
+    questions,
+    dbAxes,
+    axes,
+    allQuestions: axes.flatMap((axis) =>
+      axis.questions.map((question) => ({
+        number: question.number,
+        text: question.text,
+        axis_id: axis.id,
+        axis_name: axis.name_ar,
+      })),
+    ),
   };
 }
