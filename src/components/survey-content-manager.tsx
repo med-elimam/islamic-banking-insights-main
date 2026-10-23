@@ -55,10 +55,11 @@ function SettingsEditor({
       .upload(path, file, { upsert: true, contentType: file.type });
     if (error) return toast.error(error.message);
     const { data } = supabase.storage.from("survey-assets").getPublicUrl(path);
+    const publicUrl = `${data.publicUrl}?v=${Date.now()}`;
     setS((prev) =>
       kind === "logo"
-        ? { ...prev, logo_url: data.publicUrl }
-        : { ...prev, [`pdf_url_${lang}`]: data.publicUrl },
+        ? { ...prev, logo_url: publicUrl }
+        : { ...prev, [`pdf_url_${lang}`]: publicUrl },
     );
     toast.success("تم الرفع؛ اضغط حفظ الإعدادات لتثبيت الرابط.");
   }
