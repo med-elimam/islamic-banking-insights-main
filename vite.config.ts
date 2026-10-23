@@ -22,7 +22,7 @@ export default defineConfig({
       "/**": {
         headers: {
           "Content-Security-Policy":
-            "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none';",
+            "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none';",
           "X-Frame-Options": "DENY",
           "X-Content-Type-Options": "nosniff",
           "Referrer-Policy": "strict-origin-when-cross-origin",
@@ -30,5 +30,7 @@ export default defineConfig({
         },
       },
     },
-  },
+    // The wrapper's public type omits Nitro's supported routeRules option.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any,
 });

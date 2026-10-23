@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useSurveyConfig } from "@/lib/use-survey-config";
+import { contentMap, DEFAULT_SETTINGS, surveyTheme } from "@/lib/survey-config";
 
 export const Route = createFileRoute("/thanks")({
   head: () => ({
@@ -18,6 +20,9 @@ export const Route = createFileRoute("/thanks")({
 
 function ThanksPage() {
   const [lang, setLang] = useState<"ar" | "fr" | "en">("ar");
+  const config = useSurveyConfig(false);
+  const content = contentMap(config.data?.content ?? [], lang);
+  const settings = config.data?.settings ?? DEFAULT_SETTINGS;
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -29,25 +34,31 @@ function ThanksPage() {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col bg-hero px-6" dir={lang === "ar" ? "rtl" : "ltr"}>
+    <div
+      className="flex min-h-screen flex-col bg-hero px-6"
+      dir={lang === "ar" ? "rtl" : "ltr"}
+      style={surveyTheme(settings)}
+    >
       <div className="flex-1 grid place-items-center w-full">
         <div className="max-w-xl rounded-2xl border border-border bg-card p-10 text-center shadow-sm w-full">
           <div className="mx-auto mb-5 grid h-16 w-16 place-items-center rounded-full bg-primary/10 text-primary">
             <CheckCircle2 className="h-8 w-8" />
           </div>
           <h1 className="font-display text-2xl text-foreground">
-            {lang === "ar"
-              ? "شكراً لمساهمتكم في هذا البحث العلمي"
-              : lang === "fr"
-                ? "Merci pour votre contribution à cette recherche"
-                : "Thank you for your contribution to this research"}
+            {content.thank_you_title ||
+              (lang === "ar"
+                ? "شكراً لمساهمتكم في هذا البحث العلمي"
+                : lang === "fr"
+                  ? "Merci pour votre contribution à cette recherche"
+                  : "Thank you for your contribution to this research")}
           </h1>
           <p className="mt-3 text-sm leading-loose text-muted-foreground">
-            {lang === "ar"
-              ? "تم تسجيل إجاباتكم بنجاح. مساهمتكم تمثل قيمة كبيرة في إعداد هذا البحث الأكاديمي وفي تطوير المعرفة حول واقع وتحديات التحول نحو الصيرفة الإسلامية في موريتانيا."
-              : lang === "fr"
-                ? "Vos réponses ont été enregistrées avec succès. Votre contribution est d'une grande valeur pour la préparation de cette recherche académique et le développement des connaissances sur la réalité et les défis de la transition vers la finance islamique en Mauritanie."
-                : "Your responses have been successfully recorded. Your contribution is of great value in preparing this academic research and developing knowledge about the reality and challenges of transitioning to Islamic banking in Mauritania."}
+            {content.thank_you_text ||
+              (lang === "ar"
+                ? "تم تسجيل إجاباتكم بنجاح. مساهمتكم تمثل قيمة كبيرة في إعداد هذا البحث الأكاديمي وفي تطوير المعرفة حول واقع وتحديات التحول نحو الصيرفة الإسلامية في موريتانيا."
+                : lang === "fr"
+                  ? "Vos réponses ont été enregistrées avec succès. Votre contribution est d'une grande valeur pour la préparation de cette recherche académique et le développement des connaissances sur la réalité et les défis de la transition vers la finance islamique en Mauritanie."
+                  : "Your responses have been successfully recorded. Your contribution is of great value in preparing this academic research and developing knowledge about the reality and challenges of transitioning to Islamic banking in Mauritania.")}
           </p>
           <Button asChild className="mt-6 bg-primary text-primary-foreground">
             <Link to="/">
@@ -65,11 +76,12 @@ function ThanksPage() {
         dir={lang === "ar" ? "rtl" : "ltr"}
       >
         <div className="leading-relaxed max-w-full text-center">
-          {lang === "ar"
-            ? "© 2026 — استبيان أكاديمي. جميع الحقوق محفوظة لأغراض البحث العلمي."
-            : lang === "fr"
-              ? "© 2026 — Questionnaire académique. Tous droits réservés à des fins de recherche scientifique."
-              : "© 2026 — Academic Survey. All rights reserved for scientific research purposes."}
+          {content.footer_text ||
+            (lang === "ar"
+              ? "© 2026 — استبيان أكاديمي. جميع الحقوق محفوظة لأغراض البحث العلمي."
+              : lang === "fr"
+                ? "© 2026 — Questionnaire académique. Tous droits réservés à des fins de recherche scientifique."
+                : "© 2026 — Academic Survey. All rights reserved for scientific research purposes.")}
         </div>
         <div className="text-[10px] opacity-75 font-mono text-center">
           {lang === "ar"

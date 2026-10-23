@@ -3,6 +3,9 @@ import { Button } from "@/components/ui/button";
 import { ShieldCheck, BookOpen, BarChart3, Download } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Language } from "@/lib/survey-translations";
+import { useSurveyConfig } from "@/lib/use-survey-config";
+import { contentMap, DEFAULT_SETTINGS, surveyTheme } from "@/lib/survey-config";
+import { useQuestions } from "@/lib/use-questions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -93,6 +96,8 @@ const COPY = {
 
 function Index() {
   const [lang, setLang] = useState<Language>("ar");
+  const config = useSurveyConfig(false);
+  const { questions } = useQuestions({ activeOnly: true });
 
   useEffect(() => {
     const saved = localStorage.getItem("survey_lang");
@@ -103,17 +108,48 @@ function Index() {
     setLang(language);
     localStorage.setItem("survey_lang", language);
   };
-  const t = COPY[lang];
+  const fallback = COPY[lang];
+  const content = contentMap(config.data?.content ?? [], lang);
+  const settings = config.data?.settings ?? DEFAULT_SETTINGS;
+  const researcher = content.researcher_name;
+  const t = {
+    ...fallback,
+    survey: content.site_name || fallback.survey,
+    badge: content.hero_badge || fallback.badge,
+    title: content.research_title || fallback.title,
+    byline: researcher
+      ? lang === "ar"
+        ? `بحث في إطار أطروحة دكتوراه: ${researcher}`
+        : lang === "fr"
+          ? `Recherche doctorale de ${researcher}`
+          : `Doctoral Research by ${researcher}`
+      : fallback.byline,
+    introTitle: content.intro_title || fallback.introTitle,
+    intro: content.intro_text || fallback.intro,
+    privacy: content.privacy_text || fallback.privacy,
+    thanks: content.welcome_thanks || fallback.thanks,
+    cards: (["privacy", "structure", "analysis"] as const).map(
+      (key, i) =>
+        [
+          content[`card_${key}_title`] || fallback.cards[i][0],
+          (content[`card_${key}_text`] || fallback.cards[i][1]).replace(
+            "{count}",
+            String(questions.length || 27),
+          ),
+        ] as const,
+    ),
+  };
   const icons = [ShieldCheck, BookOpen, BarChart3];
 
   return (
     <div
       className={`min-h-screen bg-hero flex flex-col ${lang === "ar" ? "font-arabic" : "font-times"}`}
       dir={lang === "ar" ? "rtl" : "ltr"}
+      style={surveyTheme(settings)}
     >
       <header className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-6">
         <div className="flex items-center gap-3">
-          <img src="/logo.svg" alt="Logo" className="h-10 w-10 object-contain" />
+          <img src={settings.logo_url} alt="Logo" className="h-10 w-10 object-contain" />
           <span className="text-lg font-bold text-foreground">{t.survey}</span>
         </div>
         <div className="flex items-center gap-3">
@@ -162,7 +198,13 @@ function Index() {
             </Button>
             <Button asChild size="lg" variant="outline">
               <a
-                href={`/questionnaires/Questionnaire_academique_${lang.toUpperCase()}_Maryam_Limam.pdf`}
+                href={
+                  lang === "ar"
+                    ? settings.pdf_url_ar
+                    : lang === "fr"
+                      ? settings.pdf_url_fr
+                      : settings.pdf_url_en
+                }
                 download
               >
                 <Download className="h-4 w-4" />
@@ -187,7 +229,7 @@ function Index() {
       </main>
 
       <footer className="mt-auto border-t border-border/60 bg-card/40 px-4 py-6 text-center text-xs text-muted-foreground">
-        © 2026 — {t.survey} · Maryam Limam
+        {content.footer_text || `© 2026 — ${t.survey} · ${researcher || "Maryam Limam"}`}
       </footer>
     </div>
   );

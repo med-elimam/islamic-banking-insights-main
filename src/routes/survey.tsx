@@ -6,26 +6,20 @@ import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  AGES,
-  BANKS,
-  EDUCATION,
-  EXPERIENCE,
-  GENDERS,
-  LIKERT,
-  POSITIONS,
-  TRAINING,
-} from "@/lib/survey-data";
+import { LIKERT } from "@/lib/survey-data";
 import { useQuestions, type DynamicAxis } from "@/lib/use-questions";
 import { toast } from "sonner";
 import { ArrowRight, ArrowLeft, Send, Loader2 } from "lucide-react";
+import { UI_TRANSLATIONS, type Language } from "@/lib/survey-translations";
+import { useSurveyConfig } from "@/lib/use-survey-config";
 import {
-  UI_TRANSLATIONS,
-  OPTION_MAPS,
-  QUESTION_TRANSLATIONS,
-  AXIS_TRANSLATIONS,
-  type Language,
-} from "@/lib/survey-translations";
+  contentMap,
+  optionLabel,
+  optionsByGroup,
+  surveyTheme,
+  type OptionGroup,
+  type SurveyOption,
+} from "@/lib/survey-config";
 
 export const Route = createFileRoute("/survey")({
   head: () => ({
@@ -52,7 +46,9 @@ type Demo = {
 
 function SurveyPage() {
   const navigate = useNavigate();
-  const { axes, isLoading, isError } = useQuestions({ activeOnly: true });
+  const [lang, setLang] = useState<Language>("ar");
+  const { axes, isLoading, isError } = useQuestions({ activeOnly: true, lang });
+  const config = useSurveyConfig(false);
   const totalSteps = axes.length + 2; // axes + open question + demographics
   const openStep = axes.length;
   const demographicsStep = totalSteps - 1;
@@ -72,7 +68,6 @@ function SurveyPage() {
   const [honeypot, setHoneypot] = useState("");
   const [startTime] = useState(() => Date.now());
   const submissionIdRef = useRef<string | null>(null);
-  const [lang, setLang] = useState<Language>("ar");
 
   // Keep the server and the first client render identical, then restore the
   // visitor's preferred language after hydration.
@@ -82,6 +77,9 @@ function SurveyPage() {
   }, []);
 
   const progress = useMemo(() => ((step + 1) / totalSteps) * 100, [step, totalSteps]);
+  const settings = config.data?.settings;
+  const content = contentMap(config.data?.content ?? [], lang);
+  const groupedOptions = optionsByGroup(config.data?.options ?? []);
 
   const DEMO_LABELS = UI_TRANSLATIONS[lang].demoLabels;
 
@@ -132,8 +130,7 @@ function SurveyPage() {
         if (!answers[q.number]) missing.push(idx + 1);
       });
       if (missing.length) {
-        const axisName =
-          lang !== "ar" ? AXIS_TRANSLATIONS[axis.id]?.[lang] || axis.name : axis.name;
+        const axisName = axis.name;
         const qWord = lang === "ar" ? "العبارات" : lang === "fr" ? "questions" : "questions";
         issues.push(`${axisName} — ${qWord}: ${missing.join("، ")}`);
       }
@@ -182,42 +179,25 @@ function SurveyPage() {
       return;
     }
 
-    // Map demographics back to Arabic to comply with database constraints and keep analysis consistent
-    const cleanGender = (
-      OPTION_MAPS.gender.db[demo.gender as keyof typeof OPTION_MAPS.gender.db] || demo.gender
-    ).trim();
-    const cleanAge = (
-      OPTION_MAPS.age.db[demo.age as keyof typeof OPTION_MAPS.age.db] || demo.age
-    ).trim();
-    const cleanEducation = (
-      OPTION_MAPS.education.db[demo.education as keyof typeof OPTION_MAPS.education.db] ||
-      demo.education
-    ).trim();
-    const cleanBank = (
-      OPTION_MAPS.bank.db[demo.bank as keyof typeof OPTION_MAPS.bank.db] || demo.bank
-    ).trim();
-    const cleanPosition = (
-      OPTION_MAPS.position.db[demo.position as keyof typeof OPTION_MAPS.position.db] ||
-      demo.position
-    ).trim();
-    const cleanExperience = (
-      OPTION_MAPS.experience.db[demo.experience as keyof typeof OPTION_MAPS.experience.db] ||
-      demo.experience
-    ).trim();
-    const cleanTraining = (
-      OPTION_MAPS.training.db[demo.training as keyof typeof OPTION_MAPS.training.db] ||
-      demo.training
-    ).trim();
+    const cleanGender = demo.gender.trim();
+    const cleanAge = demo.age.trim();
+    const cleanEducation = demo.education.trim();
+    const cleanBank = demo.bank.trim();
+    const cleanPosition = demo.position.trim();
+    const cleanExperience = demo.experience.trim();
+    const cleanTraining = demo.training.trim();
     const cleanOpen = openAnswer.trim();
 
+    const values = (group: OptionGroup) =>
+      new Set((groupedOptions.get(group) ?? []).map((option) => option.value));
     if (
-      !(GENDERS as readonly string[]).includes(cleanGender) ||
-      !(AGES as readonly string[]).includes(cleanAge) ||
-      !(EDUCATION as readonly string[]).includes(cleanEducation) ||
-      !(BANKS as readonly string[]).includes(cleanBank) ||
-      !(POSITIONS as readonly string[]).includes(cleanPosition) ||
-      !(EXPERIENCE as readonly string[]).includes(cleanExperience) ||
-      !(TRAINING as readonly string[]).includes(cleanTraining) ||
+      !values("gender").has(cleanGender) ||
+      !values("age").has(cleanAge) ||
+      !values("education").has(cleanEducation) ||
+      !values("bank").has(cleanBank) ||
+      !values("position").has(cleanPosition) ||
+      !values("experience").has(cleanExperience) ||
+      !values("training").has(cleanTraining) ||
       cleanOpen.length > 4000
     ) {
       toast.error(UI_TRANSLATIONS[lang].invalidData);
@@ -281,14 +261,17 @@ function SurveyPage() {
     }
   }
 
-  if (isLoading) {
+  if (isLoading || config.isLoading) {
     return (
       <div className="grid min-h-screen place-items-center bg-hero">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
-  if (isError || axes.length === 0) {
+  const hasAllOptionGroups = (
+    ["gender", "age", "education", "bank", "position", "experience", "training"] as OptionGroup[]
+  ).every((group) => (groupedOptions.get(group)?.length ?? 0) > 0);
+  if (isError || config.isError || !settings || axes.length === 0 || !hasAllOptionGroups) {
     return (
       <div className="grid min-h-screen place-items-center bg-hero px-6 text-center">
         <p className="text-sm text-muted-foreground">
@@ -302,20 +285,57 @@ function SurveyPage() {
     );
   }
 
+  if (!settings.survey_open) {
+    const closedMessage =
+      lang === "fr"
+        ? settings.closed_message_fr
+        : lang === "en"
+          ? settings.closed_message_en
+          : settings.closed_message_ar;
+    return (
+      <div
+        className="grid min-h-screen place-items-center bg-hero px-6 text-center"
+        style={surveyTheme(settings)}
+      >
+        <div className="max-w-xl rounded-2xl border border-border bg-card p-8 shadow-sm">
+          <img
+            src={settings.logo_url}
+            alt="Logo"
+            className="mx-auto mb-4 h-14 w-14 object-contain"
+          />
+          <h1 className="text-xl font-bold text-foreground">
+            {content.site_name || "استبيان أكاديمي"}
+          </h1>
+          <p className="mt-3 text-muted-foreground">{closedMessage}</p>
+          <Button asChild variant="outline" className="mt-6">
+            <Link to="/">
+              {lang === "ar"
+                ? "العودة للرئيسية"
+                : lang === "fr"
+                  ? "Retour à l’accueil"
+                  : "Back to Home"}
+            </Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`min-h-screen flex flex-col bg-hero pb-16 ${lang === "ar" ? "font-arabic" : "font-times"}`}
       dir={lang === "ar" ? "rtl" : "ltr"}
+      style={surveyTheme(settings)}
     >
       <header className="mx-auto flex max-w-4xl items-center justify-between px-6 py-5 w-full flex-wrap gap-3">
         <Link
           to="/"
           className="flex items-center gap-2 font-display text-lg font-bold text-foreground"
         >
-          <img src="/logo.svg" alt="MD Logo" className="h-8 w-8 object-contain" />
+          <img src={settings.logo_url} alt="Logo" className="h-8 w-8 object-contain" />
           <span>
             {lang === "ar"
-              ? "استبيان أكاديمي"
+              ? content.site_name || "استبيان أكاديمي"
               : lang === "fr"
                 ? "Sondage Académique"
                 : "Academic Survey"}
@@ -372,7 +392,12 @@ function SurveyPage() {
           )}
 
           {step === openStep && (
-            <OpenStep value={openAnswer} setValue={setOpenAnswer} lang={lang} />
+            <OpenStep
+              value={openAnswer}
+              setValue={setOpenAnswer}
+              lang={lang}
+              question={content.open_question}
+            />
           )}
 
           {step === demographicsStep && (
@@ -383,6 +408,7 @@ function SurveyPage() {
               setHoneypot={setHoneypot}
               lang={lang}
               setLang={setLang}
+              groupedOptions={groupedOptions}
             />
           )}
 
@@ -441,13 +467,7 @@ function SurveyPage() {
         className="border-t border-border/40 bg-card/40 py-6 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-1.5 mt-auto px-4 w-full"
         dir={lang === "ar" ? "rtl" : "ltr"}
       >
-        <div className="leading-relaxed max-w-full text-center">
-          {lang === "ar"
-            ? "© 2026 — استبيان أكاديمي. جميع الحقوق محفوظة لأغراض البحث العلمي."
-            : lang === "fr"
-              ? "© 2026 — Questionnaire académique. Tous droits réservés à des fins de recherche scientifique."
-              : "© 2026 — Academic Survey. All rights reserved for scientific research purposes."}
-        </div>
+        <div className="leading-relaxed max-w-full text-center">{content.footer_text}</div>
         <div className="text-[10px] opacity-75 font-mono text-center">
           {lang === "ar"
             ? "تطوير: محمد الإمام"
@@ -465,22 +485,24 @@ function Field({
   options,
   value,
   onChange,
+  lang,
 }: {
   label: string;
-  options: readonly string[];
+  options: SurveyOption[];
   value: string;
   onChange: (v: string) => void;
+  lang: Language;
 }) {
   return (
     <div>
       <Label className="mb-3 block text-base font-semibold text-foreground">{label}</Label>
       <div className="grid gap-2 sm:grid-cols-2">
         {options.map((opt) => {
-          const id = `${label}-${opt}`;
-          const active = value === opt;
+          const id = `${label}-${opt.id}`;
+          const active = value === opt.value;
           return (
             <label
-              key={opt}
+              key={opt.id}
               htmlFor={id}
               className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 text-sm transition ${
                 active
@@ -493,9 +515,9 @@ function Field({
                 type="radio"
                 className="h-4 w-4 accent-[var(--color-primary)]"
                 checked={active}
-                onChange={() => onChange(opt)}
+                onChange={() => onChange(opt.value)}
               />
-              <span>{opt}</span>
+              <span>{optionLabel(opt, lang)}</span>
             </label>
           );
         })}
@@ -511,6 +533,7 @@ function DemographicsStep({
   setHoneypot,
   lang,
   setLang,
+  groupedOptions,
 }: {
   demo: Demo;
   setDemo: (d: Demo) => void;
@@ -518,6 +541,7 @@ function DemographicsStep({
   setHoneypot: (v: string) => void;
   lang: Language;
   setLang: (l: Language) => void;
+  groupedOptions: Map<OptionGroup, SurveyOption[]>;
 }) {
   const t = UI_TRANSLATIONS[lang];
   return (
@@ -547,16 +571,6 @@ function DemographicsStep({
                   if (typeof window !== "undefined") {
                     localStorage.setItem("survey_lang", l);
                   }
-                  // Reset demo fields since array options will change language
-                  setDemo({
-                    gender: "",
-                    age: "",
-                    education: "",
-                    bank: "",
-                    position: "",
-                    experience: "",
-                    training: "",
-                  });
                 }}
                 className={
                   active
@@ -585,43 +599,50 @@ function DemographicsStep({
       </div>
       <Field
         label={t.demoLabels.gender}
-        options={OPTION_MAPS.gender[lang]}
+        options={groupedOptions.get("gender") ?? []}
+        lang={lang}
         value={demo.gender}
         onChange={(v) => setDemo({ ...demo, gender: v })}
       />
       <Field
         label={t.demoLabels.age}
-        options={OPTION_MAPS.age[lang]}
+        options={groupedOptions.get("age") ?? []}
+        lang={lang}
         value={demo.age}
         onChange={(v) => setDemo({ ...demo, age: v })}
       />
       <Field
         label={t.demoLabels.education}
-        options={OPTION_MAPS.education[lang]}
+        options={groupedOptions.get("education") ?? []}
+        lang={lang}
         value={demo.education}
         onChange={(v) => setDemo({ ...demo, education: v })}
       />
       <Field
         label={t.demoLabels.position}
-        options={OPTION_MAPS.position[lang]}
+        options={groupedOptions.get("position") ?? []}
+        lang={lang}
         value={demo.position}
         onChange={(v) => setDemo({ ...demo, position: v })}
       />
       <Field
         label={t.demoLabels.experience}
-        options={OPTION_MAPS.experience[lang]}
+        options={groupedOptions.get("experience") ?? []}
+        lang={lang}
         value={demo.experience}
         onChange={(v) => setDemo({ ...demo, experience: v })}
       />
       <Field
         label={t.demoLabels.bank}
-        options={OPTION_MAPS.bank[lang]}
+        options={groupedOptions.get("bank") ?? []}
+        lang={lang}
         value={demo.bank}
         onChange={(v) => setDemo({ ...demo, bank: v })}
       />
       <Field
         label={t.demoLabels.training}
-        options={OPTION_MAPS.training[lang]}
+        options={groupedOptions.get("training") ?? []}
+        lang={lang}
         value={demo.training}
         onChange={(v) => setDemo({ ...demo, training: v })}
       />
@@ -640,7 +661,7 @@ function AxisStep({
   setAnswers: (a: Record<number, number>) => void;
   lang: Language;
 }) {
-  const axisName = lang !== "ar" ? AXIS_TRANSLATIONS[axis.id]?.[lang] || axis.name : axis.name;
+  const axisName = axis.name;
   const likertHelp =
     lang === "ar"
       ? "ضع علامة واحدة أمام الخيار الذي يعكس رأيك في كل عبارة: أوافق، محايد، أو لا أوافق."
@@ -657,8 +678,7 @@ function AxisStep({
 
       <div className="space-y-5">
         {axis.questions.map((q) => {
-          const questionText =
-            lang !== "ar" ? QUESTION_TRANSLATIONS[q.number]?.[lang] || q.text : q.text;
+          const questionText = q.display_text;
           return (
             <div key={q.number} className="rounded-xl border border-border bg-background p-4">
               <p className="mb-3 text-sm font-medium leading-relaxed text-foreground">
@@ -705,16 +725,18 @@ function OpenStep({
   value,
   setValue,
   lang,
+  question,
 }: {
   value: string;
   setValue: (v: string) => void;
   lang: Language;
+  question?: string;
 }) {
   const t = UI_TRANSLATIONS[lang];
   return (
     <div className="space-y-4">
       <h2 className="font-display text-2xl text-foreground">{t.openTitle}</h2>
-      <p className="text-sm leading-relaxed text-muted-foreground">{t.openLabel}</p>
+      <p className="text-sm leading-relaxed text-muted-foreground">{question || t.openLabel}</p>
       <Textarea
         value={value}
         maxLength={4000}
