@@ -95,7 +95,7 @@ const COPY = {
 } as const;
 
 function Index() {
-  const [lang, setLang] = useState<Language>("ar");
+  const [lang, setLang] = useState<Language>("fr");
   const config = useSurveyConfig(false);
   const { questions } = useQuestions({ activeOnly: true });
 
@@ -144,6 +144,7 @@ function Index() {
   return (
     <div
       className={`min-h-screen bg-hero flex flex-col ${lang === "ar" ? "font-arabic" : "font-times"}`}
+      lang={lang}
       dir={lang === "ar" ? "rtl" : "ltr"}
       style={surveyTheme(settings)}
     >
@@ -154,9 +155,11 @@ function Index() {
         </div>
         <div className="flex items-center gap-3">
           <div className="flex rounded-full border border-border bg-background/70 p-1">
-            {(["ar", "fr", "en"] as const).map((language) => (
+            {(["fr", "ar", "en"] as const).map((language) => (
               <button
                 key={language}
+                lang={language}
+                aria-pressed={lang === language}
                 type="button"
                 onClick={() => changeLang(language)}
                 className={`rounded-full px-3 py-1 text-xs font-semibold ${lang === language ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
