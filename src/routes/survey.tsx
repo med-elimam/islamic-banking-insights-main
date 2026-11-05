@@ -46,7 +46,7 @@ type Demo = {
 
 function SurveyPage() {
   const navigate = useNavigate();
-  const [lang, setLang] = useState<Language>("ar");
+  const [lang, setLang] = useState<Language>("fr");
   const { axes, isLoading, isError } = useQuestions({ activeOnly: true, lang });
   const config = useSurveyConfig(false);
   const totalSteps = axes.length + 2; // axes + open question + demographics
@@ -324,6 +324,7 @@ function SurveyPage() {
   return (
     <div
       className={`min-h-screen flex flex-col bg-hero pb-16 ${lang === "ar" ? "font-arabic" : "font-times"}`}
+      lang={lang}
       dir={lang === "ar" ? "rtl" : "ltr"}
       style={surveyTheme(settings)}
     >
@@ -341,7 +342,7 @@ function SurveyPage() {
                 : "Academic Survey"}
           </span>
         </Link>
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <Link
             to="/"
             className="inline-flex items-center gap-1 text-[11px] sm:text-xs text-muted-foreground hover:text-primary transition border border-border/80 rounded-full px-2.5 py-1 bg-background/50 shrink-0"
@@ -362,19 +363,21 @@ function SurveyPage() {
             {UI_TRANSLATIONS[lang].stepOf(step + 1, totalSteps)}
           </span>
           <div className="flex rounded-full border border-border bg-background/70 p-0.5">
-            {(["ar", "fr", "en"] as const).map((language) => (
+            {(["fr", "ar", "en"] as const).map((language) => (
               <button
                 key={language}
+                lang={language}
+                aria-pressed={lang === language}
                 type="button"
                 onClick={() => {
                   setLang(language);
                   if (typeof window !== "undefined") localStorage.setItem("survey_lang", language);
                 }}
-                className={`rounded-full px-2 py-1 text-[10px] font-semibold transition ${
+                className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
                   lang === language ? "bg-primary text-primary-foreground" : "text-muted-foreground"
                 }`}
               >
-                {language.toUpperCase()}
+                {language === "fr" ? "Français" : language === "ar" ? "العربية" : "English"}
               </button>
             ))}
           </div>
@@ -465,6 +468,7 @@ function SurveyPage() {
       </main>
       <footer
         className="border-t border-border/40 bg-card/40 py-6 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-1.5 mt-auto px-4 w-full"
+        lang={lang}
         dir={lang === "ar" ? "rtl" : "ltr"}
       >
         <div className="leading-relaxed max-w-full text-center">{content.footer_text}</div>
@@ -557,7 +561,7 @@ function DemographicsStep({
           {t.selectLanguage}
         </label>
         <div className="flex gap-2">
-          {(["ar", "fr", "en"] as const).map((l) => {
+          {(["fr", "ar", "en"] as const).map((l) => {
             const labels = { ar: "العربية", fr: "Français", en: "English" };
             const active = lang === l;
             return (
