@@ -19,7 +19,7 @@ export const Route = createFileRoute("/thanks")({
 });
 
 function ThanksPage() {
-  const [lang, setLang] = useState<"ar" | "fr" | "en">("ar");
+  const [lang, setLang] = useState<"ar" | "fr" | "en">("fr");
   const config = useSurveyConfig(false);
   const content = contentMap(config.data?.content ?? [], lang);
   const settings = config.data?.settings ?? DEFAULT_SETTINGS;
@@ -36,6 +36,7 @@ function ThanksPage() {
   return (
     <div
       className="flex min-h-screen flex-col bg-hero px-6"
+      lang={lang}
       dir={lang === "ar" ? "rtl" : "ltr"}
       style={surveyTheme(settings)}
     >
@@ -73,6 +74,7 @@ function ThanksPage() {
       </div>
       <footer
         className="border-t border-border/10 bg-card/40 py-6 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-1.5 mt-auto px-4 w-full"
+        lang={lang}
         dir={lang === "ar" ? "rtl" : "ltr"}
       >
         <div className="leading-relaxed max-w-full text-center">
